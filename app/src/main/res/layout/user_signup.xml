@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="#ffb0c4d0">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_marginBottom="100dp"
+        android:gravity="center"
+        android:text="MINE"
+        android:textSize="50dp"
+        android:textStyle="bold"></TextView>
+
+    <EditText
+        android:id="@+id/nickname_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:hint="닉네임을 입력하세요"
+        android:textColorHint="#aaaaaa"
+        android:textStyle="bold"
+        android:textSize="25dp"
+        android:layout_marginBottom="30dp"
+        android:background="#ffffff"/>
+
+    <EditText
+        android:id="@+id/id_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:hint="ID를 입력하세요"
+        android:textColorHint="#aaaaaa"
+        android:textStyle="bold"
+        android:textSize="25dp"
+        android:layout_marginBottom="30dp"
+        android:background="#ffffff"/>
+
+    <EditText
+        android:id="@+id/password_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:hint="비밀번호를 입력하세요"
+        android:textColorHint="#aaaaaa"
+        android:textStyle="bold"
+        android:textSize="25dp"
+        android:layout_marginBottom="30dp"
+        android:background="#ffffff"/>
+
+    <EditText
+        android:id="@+id/passwordcheck_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:textColorHint="#aaaaaa"
+        android:hint="비밀번호 확인"
+        android:textStyle="bold"
+        android:textSize="25dp"
+        android:layout_marginBottom="30dp"
+        android:background="#ffffff"/>
+
+    <Button
+        android:id="@+id/signup_button"
+        android:layout_width="180dp"
+        android:layout_height="50dp"
+        android:background="#4DA6"
+        android:text="회원가입"
+        android:textStyle="bold"
+        android:textSize="20dp"
+        android:backgroundTint="#03A9F4"
+        android:textColorHint="@color/white"
+        android:textAlignment="center">
+    </Button>
+</LinearLayout>
