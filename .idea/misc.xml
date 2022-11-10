@@ -3,8 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Dawon/AndroidStudioProjects/MINE/app/src/main/res/drawable/ic_launcher_background.xml" value="0.19907407407407407" />
+        <entry key="..\:/Users/Dawon/AndroidStudioProjects/MINE/app/src/main/res/layout/activity_calendar.xml" value="0.11901081916537867" />
         <entry key="..\:/Users/Dawon/AndroidStudioProjects/MINE/app/src/main/res/layout/activity_main.xml" value="0.1296875" />
-        <entry key="..\:/Users/Dawon/AndroidStudioProjects/MINE/app/src/main/res/layout/user_signup.xml" value="0.2" />
+        <entry key="..\:/Users/Dawon/AndroidStudioProjects/MINE/app/src/main/res/layout/calendar_cube.xml" value="0.1" />
+        <entry key="..\:/Users/Dawon/AndroidStudioProjects/MINE/app/src/main/res/layout/main_calendar.xml" value="0.25364583333333335" />
+        <entry key="..\:/Users/Dawon/AndroidStudioProjects/MINE/app/src/main/res/layout/user_signup.xml" value="0.1" />
       </map>
     </option>
   </component>
