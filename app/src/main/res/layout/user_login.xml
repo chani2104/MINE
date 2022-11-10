@@ -17,19 +17,29 @@
 
     <EditText
         android:id="@+id/login_id"
-        android:layout_width="380dp"
+        android:layout_width="match_parent"
         android:layout_height="55dp"
-        android:hint=" ID"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:textColor="#000000"
+        android:hint="ID"
+        android:paddingLeft="5dp"
         android:textColorHint="#FFB0C4D0"
+        android:singleLine="true"
         android:background="@drawable/box_background"/>
 
 
     <EditText
         android:id="@+id/login_password"
-        android:layout_width="380dp"
+        android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:hint=" PASSWORD"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:textColor="#000000"
+        android:hint="PASSWORD"
+        android:paddingLeft="5dp"
         android:textColorHint="#FFB0C4D0"
+        android:singleLine="true"
         android:background="@drawable/box_background"/>
 
 

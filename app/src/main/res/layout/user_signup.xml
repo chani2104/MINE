@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -13,7 +14,7 @@
         android:gravity="center"
         android:text="MINE"
         android:textSize="50dp"
-        android:textStyle="bold"></TextView>
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/nickname_edit"
@@ -21,9 +22,12 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="15dp"
         android:layout_marginLeft="15dp"
+        android:paddingLeft="5dp"
+        android:singleLine="true"
         android:hint="닉네임을 입력하세요"
         android:textColorHint="#aaaaaa"
         android:textStyle="bold"
+        android:textColor="#000000"
         android:textSize="25dp"
         android:layout_marginBottom="30dp"
         android:background="#ffffff"/>
@@ -34,9 +38,12 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="15dp"
         android:layout_marginLeft="15dp"
+        android:paddingLeft="5dp"
+        android:singleLine="true"
         android:hint="ID를 입력하세요"
         android:textColorHint="#aaaaaa"
         android:textStyle="bold"
+        android:textColor="#000000"
         android:textSize="25dp"
         android:layout_marginBottom="30dp"
         android:background="#ffffff"/>
@@ -47,9 +54,12 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="15dp"
         android:layout_marginLeft="15dp"
+        android:paddingLeft="5dp"
+        android:singleLine="true"
         android:hint="비밀번호를 입력하세요"
         android:textColorHint="#aaaaaa"
         android:textStyle="bold"
+        android:textColor="#000000"
         android:textSize="25dp"
         android:layout_marginBottom="30dp"
         android:background="#ffffff"/>
@@ -60,14 +70,18 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="15dp"
         android:layout_marginLeft="15dp"
+        android:paddingLeft="5dp"
+        android:singleLine="true"
         android:textColorHint="#aaaaaa"
         android:hint="비밀번호 확인"
         android:textStyle="bold"
+        android:textColor="#000000"
         android:textSize="25dp"
         android:layout_marginBottom="30dp"
         android:background="#ffffff"/>
 
     <Button
+        android:onClick="UserSaveFirebase"
         android:id="@+id/signup_button"
         android:layout_width="180dp"
         android:layout_height="50dp"
@@ -77,6 +91,7 @@
         android:textSize="20dp"
         android:backgroundTint="#03A9F4"
         android:textColorHint="@color/white"
-        android:textAlignment="center">
+        android:textAlignment="center"
+        tools:ignore="UsingOnClickInXml">
     </Button>
 </LinearLayout>
