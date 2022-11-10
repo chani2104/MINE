@@ -14,7 +14,9 @@
         android:text="MINE"
         android:textSize="50dp"
         android:textStyle="bold"></TextView>
+
     <EditText
+        android:id="@+id/nickname_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginRight="15dp"
@@ -27,6 +29,7 @@
         android:background="#ffffff"/>
 
     <EditText
+        android:id="@+id/id_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginRight="15dp"
@@ -39,18 +42,20 @@
         android:background="#ffffff"/>
 
     <EditText
+        android:id="@+id/password_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginRight="15dp"
         android:layout_marginLeft="15dp"
-        android:textColorHint="aaaaaa"
         android:hint="비밀번호를 입력하세요"
+        android:textColorHint="#aaaaaa"
         android:textStyle="bold"
         android:textSize="25dp"
         android:layout_marginBottom="30dp"
         android:background="#ffffff"/>
 
     <EditText
+        android:id="@+id/passwordcheck_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginRight="15dp"
@@ -63,6 +68,7 @@
         android:background="#ffffff"/>
 
     <Button
+        android:id="@+id/signup_button"
         android:layout_width="180dp"
         android:layout_height="50dp"
         android:background="#4DA6"
