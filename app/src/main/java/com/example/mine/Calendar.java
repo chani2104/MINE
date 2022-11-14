@@ -1,23 +1,22 @@
 package com.example.mine;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
-
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
+@RequiresApi(api = Build.VERSION_CODES.O)
 public class Calendar extends AppCompatActivity {
 
     TextView monthYearText;
@@ -31,7 +30,7 @@ public class Calendar extends AppCompatActivity {
         setContentView(R.layout.activity_calendar);
 
         monthYearText = findViewById(R.id.monthYearText);
-        ImageButton album= findViewById(R.id.album);
+        ImageButton album = findViewById(R.id.album);
         ImageButton set = findViewById(R.id.setting);
         recyclerView = findViewById(R.id.recycle_view);
 
@@ -39,28 +38,33 @@ public class Calendar extends AppCompatActivity {
         selectedDate = LocalDate.now();
 
         setMonthview();
-        //이전 달 버튼 이벤트
-        album.setOnClickListener(new View.OnClickListener(){
+
+        ///스와이프 화면 전환
+        recyclerView.setItemAnimator(null);
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
             @Override
-            public void onClick(View view){
-                //다음달 월 넣어줌
-                selectedDate=selectedDate.minusMonths(1);
-                setMonthview();
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder viewHolder1) {
+                return false;
             }
 
-        });
-        //다음달
-        set.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view){
-                //다음달 월 넣어줌
-                selectedDate=selectedDate.plusMonths(1);
-                setMonthview();
+            @Override public boolean isLongPressDragEnabled(){
+                return false;
             }
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                if (direction == ItemTouchHelper.RIGHT) {
+                    selectedDate = selectedDate.minusMonths(1);
+                    setMonthview();
+                } else if (direction == ItemTouchHelper.LEFT) {
+                    selectedDate = selectedDate.plusMonths(1);
+                    setMonthview();
+                }
+            }
+        }).attachToRecyclerView(recyclerView);
+    }
 
-        });
-    }//oncreate
-
+    //연도, 월 출력
     @RequiresApi(api = Build.VERSION_CODES.O)
     private  String monthYearFromDate(LocalDate date){
 
@@ -83,9 +87,8 @@ public class Calendar extends AppCompatActivity {
         // 일~월 열 레이아웃
         RecyclerView.LayoutManager manager = new GridLayoutManager(getApplicationContext(),7);
 
-
         recyclerView.setLayoutManager(manager);
-         recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(adapter);
 
     }
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -109,5 +112,4 @@ public class Calendar extends AppCompatActivity {
         }
         return dayList;
     }
-
 }
