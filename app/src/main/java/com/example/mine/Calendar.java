@@ -20,7 +20,6 @@ import java.util.ArrayList;
 public class Calendar extends AppCompatActivity {
 
     TextView monthYearText;
-    LocalDate selectedDate;
     RecyclerView recyclerView;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -35,12 +34,14 @@ public class Calendar extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycle_view);
 
         //현재 날짜
-        selectedDate = LocalDate.now();
-
+        CalendarUtil.selectedDate = LocalDate.now();
+        CalendarUtil.selectedYear = LocalDate.now().getYear();
+        CalendarUtil.selectedMonth =LocalDate.now().getMonth();
         setMonthview();
 
         ///스와이프 화면 전환
         recyclerView.setItemAnimator(null);
+
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
             @Override
@@ -54,10 +55,10 @@ public class Calendar extends AppCompatActivity {
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 if (direction == ItemTouchHelper.RIGHT) {
-                    selectedDate = selectedDate.minusMonths(1);
+                    CalendarUtil.selectedDate = CalendarUtil.selectedDate.minusMonths(1);
                     setMonthview();
                 } else if (direction == ItemTouchHelper.LEFT) {
-                    selectedDate = selectedDate.plusMonths(1);
+                    CalendarUtil.selectedDate = CalendarUtil.selectedDate.plusMonths(1);
                     setMonthview();
                 }
             }
@@ -78,11 +79,11 @@ public class Calendar extends AppCompatActivity {
     private  void setMonthview(){
 
         //년월 텍스트뷰
-        monthYearText.setText(monthYearFromDate(selectedDate));
+        monthYearText.setText(monthYearFromDate(CalendarUtil.selectedDate));
         //월 가져옴
-        ArrayList<String> daylist = daysInMonthArray(selectedDate);
+        ArrayList<LocalDate> dayList = daysInMonthArray(CalendarUtil.selectedDate);
 
-        CalendarAdapter adapter = new CalendarAdapter(daylist);
+        CalendarAdapter adapter = new CalendarAdapter(dayList);
 
         // 일~월 열 레이아웃
         RecyclerView.LayoutManager manager = new GridLayoutManager(getApplicationContext(),7);
@@ -92,22 +93,22 @@ public class Calendar extends AppCompatActivity {
 
     }
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private ArrayList<String> daysInMonthArray(LocalDate date) {
-        ArrayList<String> dayList = new ArrayList<>();
+    private ArrayList<LocalDate> daysInMonthArray(LocalDate date) {
+        ArrayList<LocalDate> dayList = new ArrayList<>();
         YearMonth yearMonth = YearMonth.from(date);
 
         //마지막&첫날 날짜 가져오기
         int lastDay = yearMonth.lengthOfMonth();
-        LocalDate firstDay = selectedDate.withDayOfMonth(1);
+        LocalDate firstDay = CalendarUtil.selectedDate.withDayOfMonth(1);
 
         //첫날 요일 월1~일7
         int dayofweek = firstDay.getDayOfWeek().getValue();
         //날짜 생성
         for (int i = 1; i < 42; i++) {
             if (i <= dayofweek || i > lastDay + dayofweek) {
-                dayList.add("");
+                dayList.add(null);
             } else {
-                dayList.add(String.valueOf(i - dayofweek));
+                dayList.add(LocalDate.of(CalendarUtil.selectedDate.getYear(),CalendarUtil.selectedDate.getMonth(),i - dayofweek));
             }
         }
         return dayList;
