@@ -1,27 +1,37 @@
 package com.example.mine;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import java.time.DayOfWeek;
+import com.google.firebase.storage.FirebaseStorage;
+
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
+@RequiresApi(api = Build.VERSION_CODES.O)
 public class Calendar extends AppCompatActivity {
 
+  //  ImageView photo;
+    private FirebaseStorage storage;
+
     TextView monthYearText;
-    LocalDate selectedDate;
     RecyclerView recyclerView;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -30,42 +40,47 @@ public class Calendar extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
 
+        storage= FirebaseStorage.getInstance();
         monthYearText = findViewById(R.id.monthYearText);
-        ImageButton album= findViewById(R.id.album);
+        ImageButton album = findViewById(R.id.album);
         ImageButton set = findViewById(R.id.setting);
         recyclerView = findViewById(R.id.recycle_view);
 
         //현재 날짜
-        selectedDate = LocalDate.now();
-
+        CalendarUtil.selectedDate = LocalDate.now();
+        CalendarUtil.selectedYear = LocalDate.now().getYear();
+        CalendarUtil.selectedMonth =LocalDate.now().getMonth();
         setMonthview();
-        //이전 달 버튼 이벤트
-        album.setOnClickListener(new View.OnClickListener(){
+        ///스와이프 화면 전환
+        recyclerView.setItemAnimator(null);
+
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
             @Override
-            public void onClick(View view){
-                //다음달 월 넣어줌
-                selectedDate=selectedDate.minusMonths(1);
-                setMonthview();
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder viewHolder1) {
+                return false;
             }
 
-        });
-        //다음달
-        set.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view){
-                //다음달 월 넣어줌
-                selectedDate=selectedDate.plusMonths(1);
-                setMonthview();
+            @Override public boolean isLongPressDragEnabled(){
+                return false;
             }
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                if (direction == ItemTouchHelper.RIGHT) {
+                    CalendarUtil.selectedDate = CalendarUtil.selectedDate.minusMonths(1);
+                    setMonthview();
+                } else if (direction == ItemTouchHelper.LEFT) {
+                    CalendarUtil.selectedDate = CalendarUtil.selectedDate.plusMonths(1);
+                    setMonthview();
+                }
+            }
+        }).attachToRecyclerView(recyclerView);
+    }
 
-        });
-    }//oncreate
-
+    //연도, 월 출력
     @RequiresApi(api = Build.VERSION_CODES.O)
     private  String monthYearFromDate(LocalDate date){
-
         DateTimeFormatter formatter=DateTimeFormatter.ofPattern("yyyy MM월");
-
         return date.format(formatter);
     }
 
@@ -74,37 +89,36 @@ public class Calendar extends AppCompatActivity {
     private  void setMonthview(){
 
         //년월 텍스트뷰
-        monthYearText.setText(monthYearFromDate(selectedDate));
+        monthYearText.setText(monthYearFromDate(CalendarUtil.selectedDate));
         //월 가져옴
-        ArrayList<String> daylist = daysInMonthArray(selectedDate);
+        ArrayList<LocalDate> dayList = daysInMonthArray(CalendarUtil.selectedDate);
 
-        CalendarAdapter adapter = new CalendarAdapter(daylist);
+        CalendarAdapter adapter = new CalendarAdapter(dayList);
 
         // 일~월 열 레이아웃
         RecyclerView.LayoutManager manager = new GridLayoutManager(getApplicationContext(),7);
 
-
         recyclerView.setLayoutManager(manager);
-         recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(adapter);
 
     }
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private ArrayList<String> daysInMonthArray(LocalDate date) {
-        ArrayList<String> dayList = new ArrayList<>();
+    private ArrayList<LocalDate> daysInMonthArray(LocalDate date) {
+        ArrayList<LocalDate> dayList = new ArrayList<>();
         YearMonth yearMonth = YearMonth.from(date);
 
         //마지막&첫날 날짜 가져오기
         int lastDay = yearMonth.lengthOfMonth();
-        LocalDate firstDay = selectedDate.withDayOfMonth(1);
+        LocalDate firstDay = CalendarUtil.selectedDate.withDayOfMonth(1);
 
         //첫날 요일 월1~일7
         int dayofweek = firstDay.getDayOfWeek().getValue();
         //날짜 생성
         for (int i = 1; i < 42; i++) {
             if (i <= dayofweek || i > lastDay + dayofweek) {
-                dayList.add("");
+                dayList.add(null);
             } else {
-                dayList.add(String.valueOf(i - dayofweek));
+                dayList.add(LocalDate.of(CalendarUtil.selectedDate.getYear(),CalendarUtil.selectedDate.getMonth(),i - dayofweek));
             }
         }
         return dayList;
