@@ -1,16 +1,25 @@
 package com.example.mine;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import com.google.firebase.storage.FirebaseStorage;
+
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -18,6 +27,9 @@ import java.util.ArrayList;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class Calendar extends AppCompatActivity {
+
+  //  ImageView photo;
+    private FirebaseStorage storage;
 
     TextView monthYearText;
     RecyclerView recyclerView;
@@ -28,6 +40,7 @@ public class Calendar extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
 
+        storage= FirebaseStorage.getInstance();
         monthYearText = findViewById(R.id.monthYearText);
         ImageButton album = findViewById(R.id.album);
         ImageButton set = findViewById(R.id.setting);
@@ -38,7 +51,6 @@ public class Calendar extends AppCompatActivity {
         CalendarUtil.selectedYear = LocalDate.now().getYear();
         CalendarUtil.selectedMonth =LocalDate.now().getMonth();
         setMonthview();
-
         ///스와이프 화면 전환
         recyclerView.setItemAnimator(null);
 
@@ -68,9 +80,7 @@ public class Calendar extends AppCompatActivity {
     //연도, 월 출력
     @RequiresApi(api = Build.VERSION_CODES.O)
     private  String monthYearFromDate(LocalDate date){
-
         DateTimeFormatter formatter=DateTimeFormatter.ofPattern("yyyy MM월");
-
         return date.format(formatter);
     }
 
@@ -113,4 +123,5 @@ public class Calendar extends AppCompatActivity {
         }
         return dayList;
     }
+
 }
