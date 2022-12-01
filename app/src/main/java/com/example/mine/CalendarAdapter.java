@@ -1,109 +1,99 @@
 package com.example.mine;
 
-import static android.app.Activity.RESULT_OK;
-
-import android.Manifest;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
-import android.preference.PreferenceManager;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.core.app.ActivityCompat;
+import androidx.core.util.Consumer;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.storage.FirebaseStorage;
-
+import com.example.mine.model.CalendarData;
+import com.example.mine.model.CalendarData;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.calendarviewHolder> {
-    ArrayList<LocalDate> dayList;
-    private static final int PICK_FROM_GALLERY = 10;
-    private FirebaseStorage storage;
+public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.CalendarViewHolder> {
 
-    public interface OnItemClickListener{
-        void onItemClicked();
+    ArrayList<CalendarData> dayList;
+    private Consumer<Integer> onClickListener;
+
+    public CalendarAdapter(ArrayList<CalendarData> dayList) {
+        this.dayList = dayList;
     }
 
-    public OnItemClickListener itemClickListener;
-
-    public  void setOnItemClickListener(OnItemClickListener listener){
-        itemClickListener=listener;
-    }
-
-    public CalendarAdapter(ArrayList<LocalDate> dayList){
-        this.dayList=dayList;
-    }
     @NonNull
     @Override
-    public calendarviewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
-        LayoutInflater inflater=LayoutInflater.from(parent.getContext());
-
-        View view=inflater.inflate(R.layout.calendar_cube, parent,false);
-
-        return new calendarviewHolder(view);
+    public CalendarViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        View view = inflater.inflate(R.layout.calendar_cube, parent, false);
+        return new CalendarViewHolder(view);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
-    public void onBindViewHolder(@NonNull calendarviewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CalendarViewHolder holder, int position) {
+        CalendarData item = dayList.get(position);
 
-        LocalDate day = dayList.get(position);
+        holder.itemView.setOnClickListener(null);
 
-//날짜 세팅
-        if (day == null) {
+        //날짜 세팅
+        if (item == null) {
             holder.dayText.setText("");
+
         } else {
+            LocalDate day = item.localDate;
             holder.dayText.setText(String.valueOf(day.getDayOfMonth()));
 
             //오늘 날짜 카메라 이미지
             if (day.equals(CalendarUtil.selectedDate) && CalendarUtil.selectedYear == day.getYear() && (CalendarUtil.selectedMonth.equals(day.getMonth()))) {
                 holder.cube_parentView.setBackgroundResource(R.drawable.camera);
                 holder.dayText.setText("");
+
+                holder.itemView.setOnClickListener(v -> {
+                    if (onClickListener != null) {
+                        onClickListener.accept(position);
+                    }
+                });
+            }
+
+            if (item.imageUri != null) {
+                holder.dayImageView.setImageURI(item.imageUri);
             }
         }
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(holder.itemView.getContext(), "성공", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
-
 
     @Override
     public int getItemCount() {
         return dayList.size();
     }
 
-    class  calendarviewHolder extends RecyclerView.ViewHolder {
+    public void setImage(int position, Uri uri) {
+        if (position < 0 || position >= dayList.size()) return;
 
+        dayList.get(position).imageUri = uri;
+        notifyItemChanged(position);
+    }
+
+    public void setOnItemClickListener(Consumer<Integer> listener) {
+        this.onClickListener = listener;
+    }
+
+    static class CalendarViewHolder extends RecyclerView.ViewHolder {
         TextView dayText;
+        ImageView dayImageView;
         View cube_parentView;
 
-         public calendarviewHolder(@NonNull View itemView) {
+        public CalendarViewHolder(@NonNull View itemView) {
             super(itemView);
+            cube_parentView = itemView.findViewById(R.id.cube_parentView);
+            dayImageView = itemView.findViewById(R.id.dayImage);
             dayText = itemView.findViewById(R.id.dayText);
-            cube_parentView=itemView.findViewById(R.id.cube_parentView);
-
-         }
+        }
     }
 }
