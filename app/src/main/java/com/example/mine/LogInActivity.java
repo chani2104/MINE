@@ -35,7 +35,7 @@ public class LogInActivity extends AppCompatActivity {
         String loginPW = sharedPref.getString("inputPW", null);
 
         if (loginID != null && loginPW != null) {
-            Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
+            Intent intent = new Intent(getApplicationContext(), Calendar.class);
             intent.putExtra("id", loginID);
             startActivity(intent);
             finish();
@@ -64,7 +64,7 @@ public class LogInActivity extends AppCompatActivity {
                                 if (!Objects.requireNonNull(pw).toString().equals(login_pw.getText().toString())) {
                                     Toast.makeText(LogInActivity.this, "비밀번호가 틀립니다.", Toast.LENGTH_LONG).show();
                                 } else if (Objects.requireNonNull(pw).toString().equals(login_pw.getText().toString())) {
-                                    Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
+                                    Intent intent = new Intent(getApplicationContext(), Calendar.class);
                                     intent.putExtra("id", doc);
                                     editor.putString("inputID", doc);
                                     editor.putString("inputPW", pw.toString());

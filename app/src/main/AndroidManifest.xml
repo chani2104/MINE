@@ -19,7 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MINE">
         <activity
-            android:name=".LogInActivity"
+            android:name=".SignupActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,7 +36,9 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-        <activity android:name=".SignupActivity"></activity>
+
+        <activity android:name=".LogInActivity" />
+            <activity android:name=".Calendar"/>
     </application>
 
 </manifest>

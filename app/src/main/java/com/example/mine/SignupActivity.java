@@ -3,6 +3,7 @@ package com.example.mine;
 import static android.content.ContentValues.TAG;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -81,6 +82,8 @@ public class SignupActivity extends AppCompatActivity {
                                     .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
                         }
                     });
+            Intent intent = new Intent(getApplicationContext(), LogInActivity.class);
+            startActivity(intent);
         }
     }
 }
