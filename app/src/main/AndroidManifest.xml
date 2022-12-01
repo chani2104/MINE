@@ -19,7 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MINE">
         <activity
-            android:name=".Calendar"
+            android:name=".LogInActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,7 +27,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.mine.fileprovider"
@@ -37,6 +36,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+        <activity android:name=".SignupActivity"></activity>
     </application>
 
 </manifest>

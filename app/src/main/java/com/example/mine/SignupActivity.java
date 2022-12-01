@@ -52,14 +52,14 @@ public class SignupActivity extends AppCompatActivity {
         data.put("가입날짜", getTime());
         data.put("잠금번호", "");
 
-        if (nickName.getText() == null)
+        if (nickName.getText().toString().isEmpty())
             Toast.makeText(this, "닉네임을 입력해주세요.", Toast.LENGTH_SHORT).show();
-        else if (ID.getText() == null)
-            Toast.makeText(this, "닉네임을 입력해주세요.", Toast.LENGTH_SHORT).show();
-        else if (password.getText() == null)
-            Toast.makeText(this, "닉네임을 입력해주세요.", Toast.LENGTH_SHORT).show();
-        else if (passwordCheck.getText() == null)
-            Toast.makeText(this, "닉네임을 입력해주세요.", Toast.LENGTH_SHORT).show();
+        else if (ID.getText().toString().isEmpty())
+            Toast.makeText(this, "아이디를 입력해주세요.", Toast.LENGTH_SHORT).show();
+        else if (password.getText().toString().isEmpty())
+            Toast.makeText(this, "패스워드를 입력해주세요.", Toast.LENGTH_SHORT).show();
+        else if (passwordCheck.getText().toString().isEmpty())
+            Toast.makeText(this, "패스워드 확인을 입력해주세요.", Toast.LENGTH_SHORT).show();
         else if (!password.getText().toString().equals(passwordCheck.getText().toString()))
             Toast.makeText(this, "비밀번호 확인이 일치하지 않습니다.", Toast.LENGTH_SHORT).show();
         else {
