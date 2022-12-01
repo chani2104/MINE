@@ -26,13 +26,24 @@ public class LogInActivity extends AppCompatActivity {
         setContentView(R.layout.user_login);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+
         login_id = findViewById(R.id.login_id);
         login_pw = findViewById(R.id.login_password);
         login_btn = findViewById(R.id.login_button);
 
         SharedPreferences sharedPref = getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
         String loginID = sharedPref.getString("inputID", null);
         String loginPW = sharedPref.getString("inputPW", null);
+        boolean isFirst = sharedPref.getBoolean("isFirst", true);
+
+        if (isFirst){
+            Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
+            editor.putBoolean("isFirst", false);
+            editor.apply();
+            startActivity(intent);
+        }
 
         if (loginID != null && loginPW != null) {
             Intent intent = new Intent(getApplicationContext(), Calendar.class);
@@ -40,7 +51,6 @@ public class LogInActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         } else if (loginID == null && loginPW == null) {
-            SharedPreferences.Editor editor = sharedPref.edit();
             login_btn.setOnClickListener(view -> db.collection("user_info")
                     .get()
                     .addOnSuccessListener(task -> {

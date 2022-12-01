@@ -37,6 +37,7 @@
         android:layout_marginLeft="15dp"
         android:textColor="#000000"
         android:hint="PASSWORD"
+        android:inputType="textPassword"
         android:paddingLeft="5dp"
         android:textColorHint="#FFB0C4D0"
         android:singleLine="true"

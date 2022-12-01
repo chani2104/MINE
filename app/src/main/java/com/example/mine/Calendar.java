@@ -1,11 +1,14 @@
 package com.example.mine;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -115,6 +118,13 @@ public class Calendar extends AppCompatActivity {
             }
         }).attachToRecyclerView(recyclerView);
 */
+        set.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), AppLock.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void showImagePicker() {
