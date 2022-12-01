@@ -1,48 +1,69 @@
 package com.example.mine;
 
-import static android.content.ContentValues.TAG;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.InputFilter;
+import android.text.InputType;
+import android.text.method.PasswordTransformationMethod;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Source;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-public class AppPassWordActivity extends Activity {
-    private String oldPwd="";
+public class AppPassWordActivity extends AppCompatActivity {
     private boolean changePwdUnlock = false;
     protected EditText etPasscode1 = null;
     protected EditText etPasscode2 = null;
     protected EditText etPasscode3 = null;
     protected EditText etPasscode4 = null;
-
-    public static AppPassWordActivity context_main;
+    protected InputFilter[] filters = null;
+    private int type = -1;
+    private String oldPwd = "";
+    static boolean[] TF = {false};
+    public AppPassWordActivity context_main;
 
     @Override
-    protected void onCreate(Bundle saveInstanceState){
+    protected void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
         setContentView(R.layout.activity_app_lock_password);
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            String message = extras.getString(AppLockConst.MESSAGE);
+            if (message != null)
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+            type = extras.getInt(AppLockConst.TYPE, -1);
+        }
 
-        context_main=this;
+        context_main = this;
+
+        filters = new InputFilter[2];
+        filters[0] = new InputFilter.LengthFilter(1);
+        filters[1] = numberFilter;
 
         etPasscode1 = (EditText) findViewById(R.id.etPasscode1);
+        setupEditText(etPasscode1);
         etPasscode2 = (EditText) findViewById(R.id.etPasscode2);
+        setupEditText(etPasscode2);
         etPasscode3 = (EditText) findViewById(R.id.etPasscode3);
+        setupEditText(etPasscode3);
         etPasscode4 = (EditText) findViewById(R.id.etPasscode4);
+        setupEditText(etPasscode4);
 
         ((Button) findViewById(R.id.btn0)).setOnClickListener(btnListener);
         ((Button) findViewById(R.id.btn1)).setOnClickListener(btnListener);
@@ -54,51 +75,160 @@ public class AppPassWordActivity extends Activity {
         ((Button) findViewById(R.id.btn7)).setOnClickListener(btnListener);
         ((Button) findViewById(R.id.btn8)).setOnClickListener(btnListener);
         ((Button) findViewById(R.id.btn9)).setOnClickListener(btnListener);
+        ((Button) findViewById(R.id.btnClear)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClear();
+            }
+        });
+        ((Button) findViewById(R.id.btnErase)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onDeleteKey();
+            }
+        });
+
+        switch (type) {
+            case AppLockConst.DISABLE_PASSLOCK:
+                this.setTitle("Disable Passcode");
+                break;
+            case AppLockConst.ENABLE_PASSLOCK:
+                this.setTitle("Enable Passcode");
+                break;
+            case AppLockConst.CHANGE_PASSWORD:
+                this.setTitle("Change Passcode");
+                break;
+            case AppLockConst.UNLOCK_PASSWORD:
+                this.setTitle("Unlock Passcode");
+                break;
+        }
     }
 
-    public boolean dataBase(int num, String password){
-
-        final boolean[] TF = {false};
+    public void database(int num, String password) {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference docRef = db.collection("user_info").document(String.valueOf("chani2104"));
+        DocumentReference docRef = db.collection("user_info").document("qq");
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    Map<String, Object> lockNum = new HashMap<>();
-                    switch (num){
-                        case 0:
-                            lockNum.put("잠금번호",password);
-                            docRef.update(lockNum);
-                            break;
-                        case 1:
-                            lockNum.put("잠금번호","");
-                            docRef.update(lockNum);
-                            break;
-                        case 2:
-                            if(String.valueOf(docRef.get(Source.valueOf("잠금번호")))==password){
-                                TF[0] =true;
+                DocumentSnapshot document = task.getResult();
+                Map<String, Object> lockNum = new HashMap<>();
+                String lock = document.getString("잠금번호");
+
+                if (!Objects.equals(lock, "")) {
+                    TF[0] = true;
+                    AppLock.isPassword = true;
+                }
+
+
+                switch (num) {
+                    case AppLockConst.ENABLE_PASSLOCK:
+                        if (oldPwd == null || oldPwd.equals("")) {
+                            oldPwd = password;
+                            onClear();
+                            Toast.makeText(AppPassWordActivity.this, "다시 한 번 입력", Toast.LENGTH_SHORT).show();
+                        } else {
+                            if (password.equals(oldPwd)) {
+                                lockNum.put("잠금번호", password);
+                                docRef.update(lockNum);
+
+                                AppLock.isPassword=true;
+                                AppLock.lock=false;
+
+                                Intent intent = new Intent(AppPassWordActivity.this, AppLock.class);
+                                intent.putExtra(AppLockConst.TYPE, (int) AppLockConst.ENABLE_PASSLOCK);
+                                setResult(RESULT_OK, intent);
+                                finish();
+                            } else {
+                                onClear();
+                                oldPwd = null;
+                                Toast.makeText(AppPassWordActivity.this, "처음부터 다시 입력하세요", Toast.LENGTH_SHORT).show();
                             }
-                            break;
-                        case 3:
-                            if(String.valueOf(docRef.get(Source.valueOf("잠금번호")))!=""){
-                                TF[0] =true;
+                        }
+                        break;
+
+                    case AppLockConst.DISABLE_PASSLOCK:
+
+                        if (!Objects.equals(lock, "")) {
+                            if (lock.equals(password)) {
+                                lockNum.put("잠금번호", "");
+                                docRef.update(lockNum);
+                                AppLock.isPassword=false;
+                                Intent intent = new Intent(AppPassWordActivity.this, AppLock.class);
+                                intent.putExtra(AppLockConst.TYPE, (int) AppLockConst.DISABLE_PASSLOCK);
+                                setResult(RESULT_OK, intent);
+                                finish();
+                            } else {
+                                Toast.makeText(AppPassWordActivity.this, "비밀번호가 틀립니다.", Toast.LENGTH_SHORT).show();
+                                onClear();
                             }
-                            break;
-                    }
+                        }else {
+                            setResult(RESULT_CANCELED);
+                            finish();
+                        }
+                        break;
+                    case AppLockConst.CHANGE_PASSWORD:
+                        if (!changePwdUnlock && Objects.equals(lock, password)) {
+                            onClear();
+                            changePwdUnlock = true;
+                            Toast.makeText(AppPassWordActivity.this, "새로운 비밀번호 입력", Toast.LENGTH_SHORT).show();
+                        }
+                        else if (changePwdUnlock) {
+                            if (oldPwd.equals("")) {
+                                oldPwd = password;
+                                onClear();
+                                Toast.makeText(AppPassWordActivity.this, "새로운 비밀번호 다시 입력", Toast.LENGTH_SHORT).show();
+                            } else {
+                                if (oldPwd.equals(password)) {
+                                    lockNum.put("잠금번호", password);
+                                    docRef.update(lockNum);
+                                    AppLock.lock = false;
+
+                                    Intent intent = new Intent(AppPassWordActivity.this, AppLock.class);
+                                    intent.putExtra(AppLockConst.TYPE, (int) AppLockConst.CHANGE_PASSWORD);
+                                    setResult(RESULT_OK, intent);
+                                    finish();
+                                } else {
+                                    onClear();
+                                    oldPwd = "";
+                                    Toast.makeText(AppPassWordActivity.this, "현재 비밀번호 다시 입력", Toast.LENGTH_SHORT).show();
+                                    changePwdUnlock = false;
+                                }
+                            }
+                        } else {
+                            Toast.makeText(AppPassWordActivity.this, "비밀번호가 틀립니다.", Toast.LENGTH_SHORT).show();
+                            changePwdUnlock = false;
+                            onClear();
+                        }
+                        break;
+
+
+                    case AppLockConst.UNLOCK_PASSWORD:
+                        if (Objects.equals(lock, password)) {
+                            Intent intent = new Intent(AppPassWordActivity.this, AppLock.class);
+                            intent.putExtra(AppLockConst.TYPE, (int) AppLockConst.UNLOCK_PASSWORD);
+                            AppLock.lock=false;
+                            setResult(RESULT_OK, intent);
+                            finish();
+                        } else {
+                            Toast.makeText(AppPassWordActivity.this, "비밀번호가 틀립니다.", Toast.LENGTH_SHORT).show();
+                            onClear();
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
         });
-        return TF[0];
     }
 
-    View.OnClickListener btnListener= new View.OnClickListener() {
 
-        int currentValue = -1;
+    private final View.OnClickListener btnListener = new View.OnClickListener() {
+
         @Override
         public void onClick(View view) {
+            int currentValue = -1;
             int id = view.getId();
             if (id == R.id.btn0) {
                 currentValue = 0;
@@ -120,14 +250,13 @@ public class AppPassWordActivity extends Activity {
                 currentValue = 8;
             } else if (id == R.id.btn9) {
                 currentValue = 9;
-            } else if(id == R.id.btnClear){
+            } else if (id == R.id.btnClear) {
                 onClear();
-            } else if(id == R.id.btnErase){
-                onDeleteKey();
-            }else{}
+            } else if (id == R.id.btnErase) onDeleteKey();
 
             String strCurrentValue = String.valueOf(currentValue);
-            if (currentValue !=-1) {
+
+            if (currentValue != -1) {
                 if (etPasscode1.isFocused()) {
                     etPasscode1.setText(strCurrentValue);
                     etPasscode2.requestFocus();
@@ -144,100 +273,69 @@ public class AppPassWordActivity extends Activity {
                     etPasscode4.setText(strCurrentValue);
                 }
             }
-
-            if (etPasscode4.getText().toString().length()>0
+            if (etPasscode4.getText().toString().length() > 0
                     && etPasscode3.getText().toString().length() > 0
                     && etPasscode2.getText().toString().length() > 0
                     && etPasscode1.getText().toString().length() > 0) {
-                inputType(getIntent().getIntExtra("type",0));
+                String str = etPasscode1.getText().toString()
+                        + etPasscode2.getText().toString()
+                        + etPasscode3.getText().toString() + etPasscode4.getText();
+                database(type, str);
             }
         }
 
     };
 
-
-    protected String inputedPassword(){
-        return etPasscode1.getText().toString()
-                + etPasscode2.getText().toString()
-                + etPasscode3.getText().toString() + etPasscode4.getText();
+    @SuppressLint("ClickableViewAccessibility")
+    protected void setupEditText(EditText editText) {
+        editText.setInputType(InputType.TYPE_NULL);
+        editText.setFilters(filters);
+        editText.setOnTouchListener(touchListener);
+        editText.setTransformationMethod(PasswordTransformationMethod.getInstance());
     }
 
-    protected void inputType(int type) {
-        switch (type) {
-            case AppLockConst.ENABLE_PASSLOCK:
-                if (oldPwd == null) {
-                    oldPwd = inputedPassword();
-                    onClear();
-                    Toast.makeText(this, "다시 한 번 입력", Toast.LENGTH_SHORT).show();
-                } else {
-                    if (inputedPassword().equals(oldPwd)) {
-                        dataBase(0,inputedPassword());
-                        setResult(RESULT_OK);
-                        finish();
-                    } else {
-                        onClear();
-                        oldPwd = null;
-                        Toast.makeText(this, "처음부터 다시 입력하세요", Toast.LENGTH_SHORT).show();
-                    }
-                }
-                break;
-
-            case AppLockConst.DISABLE_PASSLOCK:
-                if (dataBase(3,null)) {
-                    if(dataBase(2,(inputedPassword()))){
-                        dataBase(1,null);
-                        setResult(RESULT_OK);
-                        finish();
-                    }
-                    else{
-                        setResult(RESULT_CANCELED);
-                        finish();
-                    }
-                }
-                break;
-
-            case AppLockConst.UNLOCK_PASSWORD:
-                if (dataBase(2,inputedPassword())){
-                    setResult(RESULT_OK);
-                    finish();
-                } else {
-                    Log.d(TAG, "비밀번호가 틀립니다.");
-                    onClear();
-                }
-                break;
-
-            case AppLockConst.CHANGE_PASSWORD:
-                if (dataBase(2,inputedPassword()) && !changePwdUnlock) {
-                    onClear();
-                    changePwdUnlock = true;
-                    Log.d(TAG, "새로운 비밀번호 입력");
-                } else if(changePwdUnlock){
-                    if(oldPwd.isEmpty()){
-                        oldPwd=inputedPassword();
-                        onClear();
-                        Log.d(TAG, "새로운 비밀번호 다시 입력");
-                    }else{
-                        if(oldPwd==inputedPassword()){
-                            dataBase(0,inputedPassword());
-                            setResult(Activity.RESULT_OK);
-                            finish();
-                        }else{
-                            onClear();;
-                            oldPwd="";
-                            Log.d(TAG, "현재 비밀번호 다시 입력");
-                            changePwdUnlock = false;
-                        }
-                    }
-                   }else{
-                    Log.d(TAG, "비밀번호가 틀립니다.");
-                    changePwdUnlock = false;
-                    onClear();
-                }
-                break;
-
-            default:
-                break;
+    private final InputFilter numberFilter = (charSequence, i, i1, spanned, i2, i3) -> {
+        if (charSequence.length() > 1) {
+            return "";
         }
+        if (charSequence.length() == 0) {
+            return null;
+        }
+        try {
+            int number = Integer.parseInt(charSequence.toString());
+            if ((number >= 0) && (number <= 9))
+                return String.valueOf(number);
+            else
+                return "";
+        } catch (NumberFormatException e) {
+            return "";
+        }
+    };
+
+    private final View.OnTouchListener touchListener = (view, motionEvent) -> {
+        view.performClick();
+        onClear();
+        return false;
+    };
+
+    @Override
+    public void onBackPressed() {
+        if (type == AppLockConst.UNLOCK_PASSWORD) {
+            // back to home screen
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            this.startActivity(intent);
+        }
+        finish();
+    }
+
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_DEL) {
+            onDeleteKey();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     private void onDeleteKey() {
@@ -255,13 +353,12 @@ public class AppPassWordActivity extends Activity {
         }
     }
 
-    private void onClear() {
+    protected void onClear() {
         etPasscode1.setText("");
         etPasscode2.setText("");
         etPasscode3.setText("");
         etPasscode4.setText("");
-        etPasscode1.requestFocus();
+        etPasscode1.postDelayed(() -> etPasscode1.requestFocus(), 200);
     }
-
 }
 
