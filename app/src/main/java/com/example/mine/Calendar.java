@@ -1,38 +1,68 @@
 package com.example.mine;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.content.Intent;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
+import android.os.Environment;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.mine.model.CalendarData;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.storage.FirebaseStorage;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Locale;
 
-@RequiresApi(api = Build.VERSION_CODES.O)
 public class Calendar extends AppCompatActivity {
-
-  //  ImageView photo;
     private FirebaseStorage storage;
 
-    TextView monthYearText;
-    RecyclerView recyclerView;
+    private TextView monthYearText;
+    private RecyclerView recyclerView;
+    private CalendarAdapter adapter;
+
+    private int selectedPosition = -1;
+    private Uri cameraPhotoUri;
+
+    private final ActivityResultLauncher<Uri> takePicture = registerForActivityResult(
+            new ActivityResultContracts.TakePicture(),
+            result -> {
+                if (!result) return;
+                adapter.setImage(selectedPosition, cameraPhotoUri);
+            });
+
+    private final ActivityResultLauncher<String> requestPermission = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(),
+            result -> {
+                if (!result) return;
+                takePicture.launch(cameraPhotoUri);
+            });
+
+    private final ActivityResultLauncher<String> getContent = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            uri -> {
+                if (uri == null) return;
+                adapter.setImage(selectedPosition, uri);
+            });
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -40,71 +70,116 @@ public class Calendar extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
 
-        storage= FirebaseStorage.getInstance();
+        storage = FirebaseStorage.getInstance();
         monthYearText = findViewById(R.id.monthYearText);
+        recyclerView = findViewById(R.id.recycle_view);
+
         ImageButton album = findViewById(R.id.album);
         ImageButton set = findViewById(R.id.setting);
-        recyclerView = findViewById(R.id.recycle_view);
 
         //현재 날짜
         CalendarUtil.selectedDate = LocalDate.now();
         CalendarUtil.selectedYear = LocalDate.now().getYear();
-        CalendarUtil.selectedMonth =LocalDate.now().getMonth();
-        setMonthview();
+        CalendarUtil.selectedMonth = LocalDate.now().getMonth();
+        setMonthView();
+
         ///스와이프 화면 전환
         recyclerView.setItemAnimator(null);
 
+        adapter.setOnItemClickListener(position -> {
+            selectedPosition = position;
+            showImagePicker();
+        });
 
+/* View pager 로 월을 chage
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder viewHolder1) {
                 return false;
             }
 
-            @Override public boolean isLongPressDragEnabled(){
+            @Override
+            public boolean isLongPressDragEnabled() {
                 return false;
             }
+
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 if (direction == ItemTouchHelper.RIGHT) {
                     CalendarUtil.selectedDate = CalendarUtil.selectedDate.minusMonths(1);
-                    setMonthview();
+                    setMonthView();
                 } else if (direction == ItemTouchHelper.LEFT) {
                     CalendarUtil.selectedDate = CalendarUtil.selectedDate.plusMonths(1);
-                    setMonthview();
+                    setMonthView();
                 }
             }
         }).attachToRecyclerView(recyclerView);
+*/
     }
 
-    //연도, 월 출력
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private  String monthYearFromDate(LocalDate date){
-        DateTimeFormatter formatter=DateTimeFormatter.ofPattern("yyyy MM월");
-        return date.format(formatter);
+    private void showImagePicker() {
+        String[] items = Arrays.asList("카메라", "갤러리").toArray(new String[]{});
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("사진 추가")
+                .setItems(items, (dialog, index) -> {
+                    if (index == 0) {
+                        takePicture();
+                    } else if (index == 1) {
+                        getContent.launch("image/*");
+                    }
+                })
+                .show();
+    }
+
+    private void takePicture() {
+        File photoFile = null;
+        try {
+            photoFile = createImageFile();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return;
+        }
+
+        this.cameraPhotoUri = FileProvider.getUriForFile(this,
+                "com.example.mine.fileprovider",
+                photoFile);
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermission.launch(Manifest.permission.CAMERA);
+            return;
+        }
+
+        takePicture.launch(cameraPhotoUri);
     }
 
     //화면 세팅
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private  void setMonthview(){
-
+    private void setMonthView() {
         //년월 텍스트뷰
         monthYearText.setText(monthYearFromDate(CalendarUtil.selectedDate));
-        //월 가져옴
-        ArrayList<LocalDate> dayList = daysInMonthArray(CalendarUtil.selectedDate);
 
-        CalendarAdapter adapter = new CalendarAdapter(dayList);
+        //월 가져옴
+        ArrayList<CalendarData> dayList = daysInMonthArray(CalendarUtil.selectedDate);
+        adapter = new CalendarAdapter(dayList);
 
         // 일~월 열 레이아웃
-        RecyclerView.LayoutManager manager = new GridLayoutManager(getApplicationContext(),7);
-
+        RecyclerView.LayoutManager manager = new GridLayoutManager(getApplicationContext(), 7);
         recyclerView.setLayoutManager(manager);
         recyclerView.setAdapter(adapter);
-
     }
+
+    //연도, 월 출력
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private ArrayList<LocalDate> daysInMonthArray(LocalDate date) {
-        ArrayList<LocalDate> dayList = new ArrayList<>();
+    private String monthYearFromDate(LocalDate date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM월");
+        return date.format(formatter);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private ArrayList<CalendarData> daysInMonthArray(LocalDate date) {
+        ArrayList<CalendarData> dayList = new ArrayList<>();
+
         YearMonth yearMonth = YearMonth.from(date);
 
         //마지막&첫날 날짜 가져오기
@@ -112,16 +187,30 @@ public class Calendar extends AppCompatActivity {
         LocalDate firstDay = CalendarUtil.selectedDate.withDayOfMonth(1);
 
         //첫날 요일 월1~일7
-        int dayofweek = firstDay.getDayOfWeek().getValue();
+        int dayOfWeek = firstDay.getDayOfWeek().getValue();
+
         //날짜 생성
         for (int i = 1; i < 42; i++) {
-            if (i <= dayofweek || i > lastDay + dayofweek) {
+            if (i <= dayOfWeek || i > lastDay + dayOfWeek) {
                 dayList.add(null);
             } else {
-                dayList.add(LocalDate.of(CalendarUtil.selectedDate.getYear(),CalendarUtil.selectedDate.getMonth(),i - dayofweek));
+                LocalDate day = LocalDate.of(CalendarUtil.selectedDate.getYear(), CalendarUtil.selectedDate.getMonth(), i - dayOfWeek);
+                dayList.add(new CalendarData(day));
             }
         }
+
         return dayList;
     }
 
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.KOREA).format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+        return File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+    }
 }
