@@ -118,7 +118,7 @@ public class AppPassWordActivity extends AppCompatActivity {
 
                 if (!Objects.equals(lock, "")) {
                     TF[0] = true;
-                    AppLock.isPassword = true;
+                    Calendar.isPassword = true;
                 }
 
 
@@ -133,8 +133,8 @@ public class AppPassWordActivity extends AppCompatActivity {
                                 lockNum.put("잠금번호", password);
                                 docRef.update(lockNum);
 
-                                AppLock.isPassword=true;
-                                AppLock.lock=false;
+                                Calendar.isPassword=true;
+                                Calendar.lock=false;
 
                                 Intent intent = new Intent(AppPassWordActivity.this, AppLock.class);
                                 intent.putExtra(AppLockConst.TYPE, (int) AppLockConst.ENABLE_PASSLOCK);
@@ -154,7 +154,7 @@ public class AppPassWordActivity extends AppCompatActivity {
                             if (lock.equals(password)) {
                                 lockNum.put("잠금번호", "");
                                 docRef.update(lockNum);
-                                AppLock.isPassword=false;
+                                Calendar.isPassword=false;
                                 Intent intent = new Intent(AppPassWordActivity.this, AppLock.class);
                                 intent.putExtra(AppLockConst.TYPE, (int) AppLockConst.DISABLE_PASSLOCK);
                                 setResult(RESULT_OK, intent);
@@ -183,7 +183,7 @@ public class AppPassWordActivity extends AppCompatActivity {
                                 if (oldPwd.equals(password)) {
                                     lockNum.put("잠금번호", password);
                                     docRef.update(lockNum);
-                                    AppLock.lock = false;
+                                    Calendar.lock = false;
 
                                     Intent intent = new Intent(AppPassWordActivity.this, AppLock.class);
                                     intent.putExtra(AppLockConst.TYPE, (int) AppLockConst.CHANGE_PASSWORD);
@@ -208,7 +208,7 @@ public class AppPassWordActivity extends AppCompatActivity {
                         if (Objects.equals(lock, password)) {
                             Intent intent = new Intent(AppPassWordActivity.this, AppLock.class);
                             intent.putExtra(AppLockConst.TYPE, (int) AppLockConst.UNLOCK_PASSWORD);
-                            AppLock.lock=false;
+                            Calendar.lock=false;
                             setResult(RESULT_OK, intent);
                             finish();
                         } else {
