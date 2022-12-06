@@ -10,15 +10,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.UserManager;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +28,7 @@ public class Setting extends AppCompatActivity {
 
         ListView listview=findViewById(R.id.listview);
         List<String> list=new ArrayList<>();
-        SharedPreferences sharedPref = getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
+
         list.add("잠금 설정");
         list.add("닉네임 변경");
         list.add("로그아웃");
@@ -46,7 +41,7 @@ public class Setting extends AppCompatActivity {
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                 // adapterView.getItemAtPosition(i);
+
                 //잠금설정
                 if(i==0) {
                     Intent intent = new Intent(getApplicationContext(), AppLock.class);
