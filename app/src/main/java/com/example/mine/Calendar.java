@@ -94,7 +94,7 @@ public class Calendar extends AppCompatActivity {
             showImagePicker();
         });
 
-/* View pager 로 월을 chage
+/* View pager 로 월을 change
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder viewHolder1) {
@@ -121,7 +121,7 @@ public class Calendar extends AppCompatActivity {
         set.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), AppLock.class);
+                Intent intent = new Intent(getApplicationContext(), Setting.class);
                 startActivity(intent);
             }
         });
@@ -208,7 +208,6 @@ public class Calendar extends AppCompatActivity {
                 dayList.add(new CalendarData(day));
             }
         }
-
         return dayList;
     }
 
