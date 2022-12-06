@@ -57,4 +57,16 @@
         android:textColorHint="@color/white"
         android:textStyle="bold" />
 
+    <Button
+        android:id="@+id/signup_button"
+        android:layout_width="180dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:background="#4DA6"
+        android:backgroundTint="#03A9F4"
+        android:hint="회원가입"
+        android:textAlignment="center"
+        android:textColorHint="@color/white"
+        android:textStyle="bold" />
+
 </LinearLayout>

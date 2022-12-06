@@ -108,7 +108,7 @@ public class AppPassWordActivity extends AppCompatActivity {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String lockID = ((LogInActivity)LogInActivity.context_login).doc;
-        System.out.println(lockID);
+        boolean firstLogin = ((LogInActivity)LogInActivity.context_login).isFirst;
         DocumentReference docRef = db.collection("user_info").document(lockID);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
 
@@ -118,9 +118,10 @@ public class AppPassWordActivity extends AppCompatActivity {
                 Map<String, Object> lockNum = new HashMap<>();
                 String lock = document.getString("잠금번호");
 
-                if (!Objects.equals(lock, "")) {
+                if (firstLogin) {
                     TF[0] = true;
                     Calendar.isPassword = true;
+                    ((LogInActivity)LogInActivity.context_login).isFirst = false;
                 }
                 else
                     Calendar.isPassword = false;

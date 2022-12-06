@@ -14,7 +14,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
+
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +37,8 @@ public class Setting extends AppCompatActivity {
         list.add("로그아웃");
         list.add("회원 탈퇴");
 
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String loginID = ((LogInActivity)LogInActivity.context_login).doc;
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,list);
         listview.setAdapter(adapter);
@@ -56,18 +61,11 @@ public class Setting extends AppCompatActivity {
                     new AlertDialog.Builder(Setting.this)
                             .setTitle("로그아웃").setMessage("로그아웃 하시겠습니까?")
                             .setPositiveButton("로그아웃", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
+                                public void onClick(DialogInterface dialogInterface, int i) {
 
                                     Intent intent = new Intent(Setting.this , LogInActivity.class);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                    Toast.makeText(Setting.this, "로그아웃에 성공했습니다.", Toast.LENGTH_SHORT).show();
                                     startActivity(intent);
-
-                                    SharedPreferences sharedPref = getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
-                                    SharedPreferences.Editor editor = sharedPref.edit();
-                                    editor.clear();
-                                    editor.commit();
-                                    finish();
-
 
                                 }
                             })
@@ -84,15 +82,11 @@ public class Setting extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
 
-                                   //SHAREDpref에 저장된 값 삭제하려고 작성해 놓은 코드라 지우시면 안돼요~!
                                     Intent intent = new Intent(Setting.this , LogInActivity.class);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                    db.collection("user_info").document(loginID)
+                                            .delete();
                                     startActivity(intent);
-                                    SharedPreferences sharedPref = getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
-                                    SharedPreferences.Editor editor = sharedPref.edit();
-                                    editor.clear();
-                                    editor.commit();
-                                    finish();
+
                                 }
 
 

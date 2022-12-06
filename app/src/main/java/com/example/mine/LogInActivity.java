@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -19,10 +20,11 @@ import java.util.Objects;
 
 public class LogInActivity extends AppCompatActivity {
     EditText login_id, login_pw;
-    Button login_btn;
+    Button login_btn, signup_btn;
     @SuppressLint("StaticFieldLeak")
     public static Context context_login;
     public String doc = "";
+    public boolean isFirst;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -36,24 +38,34 @@ public class LogInActivity extends AppCompatActivity {
         login_id = findViewById(R.id.login_id);
         login_pw = findViewById(R.id.login_password);
         login_btn = findViewById(R.id.login_button);
+        signup_btn = findViewById(R.id.signup_button);
 
         SharedPreferences sharedPref = getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
 
         String loginID = sharedPref.getString("inputID", null);
         String loginPW = sharedPref.getString("inputPW", null);
-        boolean isFirst = sharedPref.getBoolean("isFirst", true);
+        isFirst = sharedPref.getBoolean("isFirst", true);
 
-        if (isFirst){
-            Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
-            editor.putBoolean("isFirst", false);
+        signup_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        if (!isFirst) {
+            editor.remove("inputID");
+            editor.remove("inputPW");
+            editor.remove("isFirst");
             editor.apply();
-            startActivity(intent);
         }
 
         if (loginID != null && loginPW != null) {
             Intent intent = new Intent(getApplicationContext(), Calendar.class);
             intent.putExtra("id", loginID);
+            System.out.println("Auto Login Success");
             startActivity(intent);
             finish();
 
@@ -73,6 +85,7 @@ public class LogInActivity extends AppCompatActivity {
                                     docFound = true;
                                     pw = ds.get("비밀번호");
                                     doc = ds.getId();
+                                    isFirst = false;
                                 }
                             }
                             System.out.println(docFound);
@@ -86,6 +99,7 @@ public class LogInActivity extends AppCompatActivity {
                                     lockIntent.putExtra("lockID", doc);
                                     editor.putString("inputID", doc);
                                     editor.putString("inputPW", pw.toString());
+                                    editor.putBoolean("isFirst", false);
                                     editor.apply();
                                     Toast.makeText(LogInActivity.this, "로그인에 성공했습니다.", Toast.LENGTH_LONG).show();
                                     startActivity(intent);
