@@ -1,5 +1,6 @@
 package com.example.mine;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,11 +20,16 @@ import java.util.Objects;
 public class LogInActivity extends AppCompatActivity {
     EditText login_id, login_pw;
     Button login_btn;
+    @SuppressLint("StaticFieldLeak")
+    public static Context context_login;
+    public String doc = "";
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_login);
+
+        context_login = this;
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -61,7 +67,6 @@ public class LogInActivity extends AppCompatActivity {
                         else {
                             boolean docFound = false;
                             Object pw = null;
-                            String doc = "";
                             for (DocumentSnapshot ds : task.getDocuments()) {
                                 if (ds.getId().equals(login_id.getText().toString())) {
                                     docFound = true;
@@ -75,7 +80,9 @@ public class LogInActivity extends AppCompatActivity {
                                     Toast.makeText(LogInActivity.this, "비밀번호가 틀립니다.", Toast.LENGTH_LONG).show();
                                 } else if (Objects.requireNonNull(pw).toString().equals(login_pw.getText().toString())) {
                                     Intent intent = new Intent(getApplicationContext(), Calendar.class);
+                                    Intent lockIntent = new Intent(getApplicationContext(), AppPassWordActivity.class);
                                     intent.putExtra("id", doc);
+                                    lockIntent.putExtra("lockID", doc);
                                     editor.putString("inputID", doc);
                                     editor.putString("inputPW", pw.toString());
                                     editor.apply();

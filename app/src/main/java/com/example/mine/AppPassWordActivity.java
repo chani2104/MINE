@@ -107,7 +107,9 @@ public class AppPassWordActivity extends AppCompatActivity {
     public void database(int num, String password) {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference docRef = db.collection("user_info").document("qq");
+        String lockID = ((LogInActivity)LogInActivity.context_login).doc;
+        System.out.println(lockID);
+        DocumentReference docRef = db.collection("user_info").document(lockID);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
 
             @Override
@@ -120,7 +122,8 @@ public class AppPassWordActivity extends AppCompatActivity {
                     TF[0] = true;
                     Calendar.isPassword = true;
                 }
-
+                else
+                    Calendar.isPassword = false;
 
                 switch (num) {
                     case AppLockConst.ENABLE_PASSLOCK:
