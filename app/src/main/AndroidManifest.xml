@@ -13,11 +13,12 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/newicon"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MINE">
+
         <activity
             android:name=".LogInActivity"
             android:exported="true">
@@ -27,6 +28,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.mine.fileprovider"
@@ -38,9 +40,10 @@
         </provider>
 
         <activity android:name=".SignupActivity" />
-        <activity android:name=".Calendar"/>
-        <activity android:name=".AppLock"/>
-        <activity android:name=".AppPassWordActivity"/>
+        <activity android:name=".Calendar" />
+        <activity android:name=".AppLock" />
+        <activity android:name=".AppPassWordActivity" />
+        <activity android:name=".Setting" />
     </application>
 
 </manifest>

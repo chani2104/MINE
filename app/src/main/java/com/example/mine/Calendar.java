@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.mine.model.CalendarData;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -38,11 +39,10 @@ import java.util.Locale;
 
 public class Calendar extends AppCompatActivity {
     private FirebaseStorage storage;
-
+    private ViewPager2 viewPager2;
     private TextView monthYearText;
     private RecyclerView recyclerView;
     private CalendarAdapter adapter;
-
     private int selectedPosition = -1;
     private Uri cameraPhotoUri;
 
@@ -97,15 +97,18 @@ public class Calendar extends AppCompatActivity {
         CalendarUtil.selectedMonth = LocalDate.now().getMonth();
         setMonthView();
 
-        ///스와이프 화면 전환
-        recyclerView.setItemAnimator(null);
 
+        recyclerView.setItemAnimator(null);
         adapter.setOnItemClickListener(position -> {
             selectedPosition = position;
             showImagePicker();
         });
 
-/* View pager 로 월을 chage
+        ///스와이프 화면 전환
+      /*  viewPager2 = findViewById(R.id.view_pager);
+        viewPager2.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
+        viewPager2.setAdapter(adapter);*/
+/* View pager 로 월을 change
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder viewHolder1) {
@@ -132,7 +135,7 @@ public class Calendar extends AppCompatActivity {
         set.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), AppLock.class);
+                Intent intent = new Intent(getApplicationContext(), Setting.class);
                 startActivity(intent);
             }
         });
@@ -222,7 +225,6 @@ public class Calendar extends AppCompatActivity {
                 dayList.add(new CalendarData(day));
             }
         }
-
         return dayList;
     }
 

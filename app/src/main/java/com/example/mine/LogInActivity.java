@@ -56,6 +56,7 @@ public class LogInActivity extends AppCompatActivity {
             intent.putExtra("id", loginID);
             startActivity(intent);
             finish();
+
         } else if (loginID == null && loginPW == null) {
             login_btn.setOnClickListener(view -> db.collection("user_info")
                     .get()
@@ -95,5 +96,7 @@ public class LogInActivity extends AppCompatActivity {
                         }
                     }));
         }
+
     }
+
 }

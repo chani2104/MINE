@@ -61,7 +61,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                     }
                 });
             }
-
+            // 선택한 이미지 삽입
             if (item.imageUri != null) {
                 holder.dayImageView.setImageURI(item.imageUri);
             }

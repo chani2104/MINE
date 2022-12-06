@@ -13,7 +13,6 @@
         android:orientation="horizontal">
 
         <ImageButton
-
             android:id="@+id/album"
             android:layout_width="0dp"
             android:layout_height="50dp"
@@ -112,6 +111,10 @@
                 android:textAlignment="center"
                 android:textColor="@color/black"/>
             </LinearLayout>
+<androidx.viewpager2.widget.ViewPager2
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/view_pager"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
