@@ -46,6 +46,10 @@ public class Calendar extends AppCompatActivity {
     private int selectedPosition = -1;
     private Uri cameraPhotoUri;
 
+    AppPassWordActivity appPassWordActivity;
+    static boolean isPassword = true;
+    static boolean lock = true;
+
     private final ActivityResultLauncher<Uri> takePicture = registerForActivityResult(
             new ActivityResultContracts.TakePicture(),
             result -> {
@@ -73,12 +77,19 @@ public class Calendar extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
 
+        appPassWordActivity = new AppPassWordActivity();
+        appPassWordActivity.database(4,null);
+
         storage = FirebaseStorage.getInstance();
         monthYearText = findViewById(R.id.monthYearText);
         recyclerView = findViewById(R.id.recycle_view);
 
         ImageButton album = findViewById(R.id.album);
         ImageButton set = findViewById(R.id.setting);
+
+        //잠금설정
+        appPassWordActivity.database(4,null);
+
 
         //현재 날짜
         CalendarUtil.selectedDate = LocalDate.now();
@@ -128,7 +139,10 @@ public class Calendar extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
     }
+
+
 
     private void showImagePicker() {
         String[] items = Arrays.asList("카메라", "갤러리").toArray(new String[]{});
@@ -225,4 +239,31 @@ public class Calendar extends AppCompatActivity {
                 storageDir      /* directory */
         );
     }
+
+    //잠금기능
+
+    protected boolean isPassLock() {
+        appPassWordActivity.database(4,null);
+        return isPassword;
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (lock && isPassLock()) {
+            Intent intent = new Intent(this, AppPassWordActivity.class);
+            intent.putExtra(AppLockConst.TYPE, AppLockConst.UNLOCK_PASSWORD);
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (isPassLock()) {
+            lock = true;
+        }
+    }
+
+
 }

@@ -18,8 +18,6 @@ public class AppLock extends AppCompatActivity implements View.OnClickListener {
 
     private ActivityResultLauncher<Intent> launcher;
 
-    static boolean lock = true;
-    static boolean isPassword = false;
 
     Button btnSetLock;
     Button btnSetDelLock;
@@ -31,8 +29,6 @@ public class AppLock extends AppCompatActivity implements View.OnClickListener {
 
         setContentView(R.layout.activity_app_lock);
         appPassWordActivity = new AppPassWordActivity();
-        appPassWordActivity.database(4,null);
-        System.out.println("create");
 
         btnSetLock = (Button) findViewById(R.id.btnSetLock);
         btnSetDelLock = (Button) findViewById(R.id.btnSetDelLock);
@@ -103,41 +99,24 @@ public class AppLock extends AppCompatActivity implements View.OnClickListener {
     }
 
 
+
     protected boolean isPassLock() {
             appPassWordActivity.database(4,null);
-        return isPassword;
+        return Calendar.isPassword;
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (lock && isPassLock()) {
-            Intent intent = new Intent(this, AppPassWordActivity.class);
-            intent.putExtra(AppLockConst.TYPE, AppLockConst.UNLOCK_PASSWORD);
-            launcher.launch(intent);
-        }
-    }
-
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (isPassLock()) {
-            lock = true;
-        }
-    }
 
     private void init() {
         if (isPassLock()) {
             btnSetLock.setEnabled(false);
             btnSetDelLock.setEnabled(true);
             btnChangePwd.setEnabled(true);
-            lock = true;
+            Calendar.lock = true;
         } else {
             btnSetLock.setEnabled(true);
             btnSetDelLock.setEnabled(false);
             btnChangePwd.setEnabled(false);
-            lock = false;
+            Calendar.lock = false;
         }
     }
 
