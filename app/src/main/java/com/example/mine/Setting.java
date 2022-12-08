@@ -64,8 +64,16 @@ public class Setting extends AppCompatActivity {
                                 public void onClick(DialogInterface dialogInterface, int i) {
 
                                     Intent intent = new Intent(getApplicationContext() , LogInActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
                                     Toast.makeText(Setting.this, "로그아웃에 성공했습니다.", Toast.LENGTH_SHORT).show();
                                     startActivity(intent);
+
+                                    SharedPreferences sharedPref = getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPref.edit();
+                                    editor.clear();
+                                    editor.apply();
+                                    finish();
+
 
                                 }
                             })
@@ -83,9 +91,15 @@ public class Setting extends AppCompatActivity {
                                 public void onClick(DialogInterface dialogInterface, int i) {
 
                                     Intent intent = new Intent(Setting.this , LogInActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
                                     db.collection("user_info").document(loginID)
                                             .delete();
                                     startActivity(intent);
+                                    SharedPreferences sharedPref = getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPref.edit();
+                                    editor.clear();
+                                    editor.apply();
+                                    finish();
 
                                 }
 
