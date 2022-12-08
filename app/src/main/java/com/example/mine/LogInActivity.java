@@ -88,6 +88,7 @@ public class LogInActivity extends AppCompatActivity {
                                     intent.putExtra("id", doc);
                                     lockIntent.putExtra("lockID", doc);
                                     Calendar.login = true;
+                                    Calendar.lock = false;
                                     editor.putString("inputID", doc);
                                     editor.putString("inputPW", pw.toString());
                                     editor.apply();
