@@ -109,7 +109,7 @@ public class AppPassWordActivity extends AppCompatActivity {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String lockID = ((LogInActivity)LogInActivity.context_login).doc;
-        boolean firstLogin = ((LogInActivity)LogInActivity.context_login).isFirst;
+        System.out.println(lockID);
         DocumentReference docRef = db.collection("user_info").document(lockID);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
 
@@ -132,7 +132,6 @@ public class AppPassWordActivity extends AppCompatActivity {
                 if (!Objects.equals(lock, "")) {
                     TF[0] = true;
                     Calendar.isPassword = true;
-                    ((LogInActivity)LogInActivity.context_login).isFirst = false;
                 }
                 else
                     Calendar.isPassword = false;

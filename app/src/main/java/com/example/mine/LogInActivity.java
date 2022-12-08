@@ -24,7 +24,6 @@ public class LogInActivity extends AppCompatActivity {
     @SuppressLint("StaticFieldLeak")
     public static Context context_login;
     public String doc = "";
-    public boolean isFirst;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,7 +44,6 @@ public class LogInActivity extends AppCompatActivity {
 
         String loginID = sharedPref.getString("inputID", null);
         String loginPW = sharedPref.getString("inputPW", null);
-        isFirst = sharedPref.getBoolean("isFirst", true);
 
         signup_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,13 +52,6 @@ public class LogInActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        if (!isFirst) {
-            editor.remove("inputID");
-            editor.remove("inputPW");
-            editor.remove("isFirst");
-            editor.apply();
-        }
 
         if (loginID != null && loginPW != null) {
             Intent intent = new Intent(getApplicationContext(), Calendar.class);
@@ -85,7 +76,6 @@ public class LogInActivity extends AppCompatActivity {
                                     docFound = true;
                                     pw = ds.get("비밀번호");
                                     doc = ds.getId();
-                                    isFirst = false;
                                 }
                             }
                             System.out.println(docFound);
@@ -100,7 +90,6 @@ public class LogInActivity extends AppCompatActivity {
                                     Calendar.login = true;
                                     editor.putString("inputID", doc);
                                     editor.putString("inputPW", pw.toString());
-                                    editor.putBoolean("isFirst", false);
                                     editor.apply();
                                     Toast.makeText(LogInActivity.this, "로그인에 성공했습니다.", Toast.LENGTH_LONG).show();
                                     startActivity(intent);
