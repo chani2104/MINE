@@ -14,6 +14,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+
 public class AppLock extends AppCompatActivity implements View.OnClickListener {
 
     private ActivityResultLauncher<Intent> launcher;

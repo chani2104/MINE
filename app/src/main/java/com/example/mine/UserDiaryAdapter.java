@@ -18,30 +18,30 @@ import com.example.mine.model.CalendarData;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.CalendarViewHolder> {
+public class UserDiaryAdapter extends RecyclerView.Adapter<UserDiaryAdapter.UserDiaryViewHolder> {
 
     ArrayList<CalendarData> dayList;
     private Consumer<Integer> onClickListener;
 
-    public CalendarAdapter(ArrayList<CalendarData> dayList) {
+    public UserDiaryAdapter(ArrayList<CalendarData> dayList) {
         this.dayList = dayList;
     }
 
     @NonNull
     @Override
     //뷰홀더를 만들 때 호출되는 함수
-    public CalendarViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public UserDiaryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View view = inflater.inflate(R.layout.calendar_cube, parent, false);
-        return new CalendarViewHolder(view);
+        return new UserDiaryViewHolder(view);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     //뷰홀더 안에서 어떤 작업을 할 것이냐
-    public void onBindViewHolder(@NonNull CalendarViewHolder holder, int position) {
-        CalendarData item = dayList.get(position);
+    public void onBindViewHolder(@NonNull UserDiaryViewHolder holder, int position) {
 
+        CalendarData item = dayList.get(position);
         holder.itemView.setOnClickListener(null);
 
         //날짜 세팅
@@ -83,17 +83,31 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         notifyItemChanged(position);
     }
 
-    public void setOnItemClickListener(Consumer<Integer> listener) {
+    /*public void setOnItemClickListener(Consumer<Integer> listener) {
         this.onClickListener = listener;
+    }*/
+
+
+
+
+    public interface OnItemClickListener{
+        void onItemClick(View v, UserDiaryData data);
     }
 
+    private UserDiaryAdapter.OnItemClickListener mListener = null;
+
+    public void setOnItemClickListener(UserDiaryAdapter.OnItemClickListener listener){
+        this.mListener = listener;
+    }
+
+
     //ViewHolder를 만들어서 그 안에 있는 View들을 찾아주기
-    static class CalendarViewHolder extends RecyclerView.ViewHolder {
+    static class UserDiaryViewHolder extends RecyclerView.ViewHolder {
         TextView dayText;
         ImageView dayImageView;
         View cube_parentView;
 
-        public CalendarViewHolder(@NonNull View itemView) {
+        public UserDiaryViewHolder(@NonNull View itemView) {
             super(itemView);
             cube_parentView = itemView.findViewById(R.id.cube_parentView);
             dayImageView = itemView.findViewById(R.id.dayImage);

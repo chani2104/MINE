@@ -41,13 +41,13 @@ public class Calendar extends AppCompatActivity {
 
     private TextView monthYearText;
     private RecyclerView recyclerView;
-    private CalendarAdapter adapter;
+    protected static CalendarAdapter adapter;
 
     private int selectedPosition = -1;
     private Uri cameraPhotoUri;
 
     AppPassWordActivity appPassWordActivity;
-    static boolean isPassword = true;
+    static boolean isPassword=false;
     static boolean lock = true;
 
     private final ActivityResultLauncher<Uri> takePicture = registerForActivityResult(
@@ -64,7 +64,8 @@ public class Calendar extends AppCompatActivity {
                 takePicture.launch(cameraPhotoUri);
             });
 
-    private final ActivityResultLauncher<String> getContent = registerForActivityResult(
+
+    protected final ActivityResultLauncher<String> getContent = registerForActivityResult(
             new ActivityResultContracts.GetContent(),
             uri -> {
                 if (uri == null) return;
@@ -81,6 +82,7 @@ public class Calendar extends AppCompatActivity {
         appPassWordActivity.database(4,null);
 
         storage = FirebaseStorage.getInstance();
+
         monthYearText = findViewById(R.id.monthYearText);
         recyclerView = findViewById(R.id.recycle_view);
 
@@ -88,7 +90,7 @@ public class Calendar extends AppCompatActivity {
         ImageButton set = findViewById(R.id.setting);
 
         //잠금설정
-        appPassWordActivity.database(4,null);
+        isPassLock();
 
 
         //현재 날짜
@@ -97,14 +99,16 @@ public class Calendar extends AppCompatActivity {
         CalendarUtil.selectedMonth = LocalDate.now().getMonth();
         setMonthView();
 
-        ///스와이프 화면 전환
+
         recyclerView.setItemAnimator(null);
 
         adapter.setOnItemClickListener(position -> {
             selectedPosition = position;
-            showImagePicker();
+            Intent intent = new Intent(this,UserDiary.class);
+            intent.putExtra("localDate",selectedPosition);
+            startActivity(intent);
         });
-
+///스와이프 화면 전환
 /* View pager 로 월을 chage
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
             @Override
@@ -141,41 +145,10 @@ public class Calendar extends AppCompatActivity {
 
 
 
-    private void showImagePicker() {
-        String[] items = Arrays.asList("카메라", "갤러리").toArray(new String[]{});
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("사진 추가")
-                .setItems(items, (dialog, index) -> {
-                    if (index == 0) {
-                        takePicture();
-                    } else if (index == 1) {
-                        getContent.launch("image/*");
-                    }
-                })
-                .show();
-    }
 
-    private void takePicture() {
-        File photoFile = null;
-        try {
-            photoFile = createImageFile();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return;
-        }
 
-        this.cameraPhotoUri = FileProvider.getUriForFile(this,
-                "com.example.mine.fileprovider",
-                photoFile);
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            requestPermission.launch(Manifest.permission.CAMERA);
-            return;
-        }
 
-        takePicture.launch(cameraPhotoUri);
-    }
 
     //화면 세팅
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -236,6 +209,7 @@ public class Calendar extends AppCompatActivity {
                 ".jpg",         /* suffix */
                 storageDir      /* directory */
         );
+
     }
 
     //잠금기능
@@ -247,6 +221,8 @@ public class Calendar extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        System.out.println("3333333333333333333333");
+
 
         if (lock && isPassLock()) {
             Intent intent = new Intent(this, AppPassWordActivity.class);
@@ -258,7 +234,7 @@ public class Calendar extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (isPassLock()) {
+        if (isPassLock() ) {
             lock = true;
         }
     }

@@ -78,6 +78,7 @@ public class LogInActivity extends AppCompatActivity {
                                     intent.putExtra("id", doc);
                                     editor.putString("inputID", doc);
                                     editor.putString("inputPW", pw.toString());
+                                    editor.putBoolean("isFirst",false);
                                     editor.apply();
                                     Toast.makeText(LogInActivity.this, "로그인에 성공했습니다.", Toast.LENGTH_LONG).show();
                                     startActivity(intent);
