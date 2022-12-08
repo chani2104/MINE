@@ -44,7 +44,7 @@ public class UserDiaryAdapter extends RecyclerView.Adapter<UserDiaryAdapter.User
         CalendarData item = dayList.get(position);
         holder.itemView.setOnClickListener(null);
 
-        //날짜 세팅
+        /*//날짜 세팅
         if (item == null) {
             holder.dayText.setText("");
 
@@ -67,7 +67,7 @@ public class UserDiaryAdapter extends RecyclerView.Adapter<UserDiaryAdapter.User
             if (item.imageUri != null) {
                 holder.dayImageView.setImageURI(item.imageUri);
             }
-        }
+        }*/
     }
 
     //뷰홀더를 몇 개나 만들어서 RecyclerView에 넣을 것이냐
@@ -103,15 +103,13 @@ public class UserDiaryAdapter extends RecyclerView.Adapter<UserDiaryAdapter.User
 
     //ViewHolder를 만들어서 그 안에 있는 View들을 찾아주기
     static class UserDiaryViewHolder extends RecyclerView.ViewHolder {
-        TextView dayText;
-        ImageView dayImageView;
-        View cube_parentView;
+        TextView diaryText;
+        ImageView diaryImageView;
 
         public UserDiaryViewHolder(@NonNull View itemView) {
             super(itemView);
-            cube_parentView = itemView.findViewById(R.id.cube_parentView);
-            dayImageView = itemView.findViewById(R.id.dayImage);
-            dayText = itemView.findViewById(R.id.dayText);
+            diaryImageView = itemView.findViewById(R.id.diary_imageView);
+            diaryText = itemView.findViewById(R.id.dayText);
         }
     }
 }

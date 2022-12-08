@@ -58,13 +58,16 @@ public class Setting extends AppCompatActivity {
                 }
                 //로그아웃
                 if(i==2){
+                    Calendar.login = false;
                     new AlertDialog.Builder(Setting.this)
                             .setTitle("로그아웃").setMessage("로그아웃 하시겠습니까?")
                             .setPositiveButton("로그아웃", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialogInterface, int i) {
 
+                                    Calendar.login = false;
                                     Intent intent = new Intent(getApplicationContext() , LogInActivity.class);
                                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
                                     Toast.makeText(Setting.this, "로그아웃에 성공했습니다.", Toast.LENGTH_SHORT).show();
                                     startActivity(intent);
 

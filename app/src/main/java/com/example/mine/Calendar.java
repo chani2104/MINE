@@ -50,6 +50,7 @@ public class Calendar extends AppCompatActivity {
     AppPassWordActivity appPassWordActivity;
     static boolean isPassword=false;
     static boolean lock = true;
+    static boolean login = false;
 
     private final ActivityResultLauncher<Uri> takePicture = registerForActivityResult(
             new ActivityResultContracts.TakePicture(),
@@ -80,8 +81,11 @@ public class Calendar extends AppCompatActivity {
         setContentView(R.layout.activity_calendar);
 
         appPassWordActivity = new AppPassWordActivity();
-        appPassWordActivity.database(4,null);
 
+        if(login) {
+            //잠금설정
+            isPassLock();
+        }
         storage = FirebaseStorage.getInstance();
 
         monthYearText = findViewById(R.id.monthYearText);
@@ -89,9 +93,6 @@ public class Calendar extends AppCompatActivity {
 
         ImageButton album = findViewById(R.id.album);
         ImageButton set = findViewById(R.id.setting);
-
-        //잠금설정
-        isPassLock();
 
 
         //현재 날짜
@@ -148,12 +149,6 @@ public class Calendar extends AppCompatActivity {
         });
 
     }
-
-
-
-
-
-
 
 
     //화면 세팅
@@ -226,21 +221,22 @@ public class Calendar extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        System.out.println("3333333333333333333333");
-
-
-        if (lock && isPassLock()) {
-            Intent intent = new Intent(this, AppPassWordActivity.class);
-            intent.putExtra(AppLockConst.TYPE, AppLockConst.UNLOCK_PASSWORD);
-            startActivity(intent);
+        if (login) {
+            if (lock && isPassLock()) {
+                Intent intent = new Intent(this, AppPassWordActivity.class);
+                intent.putExtra(AppLockConst.TYPE, AppLockConst.UNLOCK_PASSWORD);
+                startActivity(intent);
+            }
         }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (isPassLock() ) {
-            lock = true;
+        if (login){
+            if(isPassLock() ) {
+                lock = true;
+            }
         }
     }
 
