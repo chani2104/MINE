@@ -38,6 +38,7 @@ public class AppPassWordActivity extends AppCompatActivity {
     static boolean[] TF = {false};
     public AppPassWordActivity context_main;
 
+
     @Override
     protected void onCreate(Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
@@ -118,7 +119,17 @@ public class AppPassWordActivity extends AppCompatActivity {
                 Map<String, Object> lockNum = new HashMap<>();
                 String lock = document.getString("잠금번호");
 
-                if (firstLogin) {
+                if(num==4) {
+                    System.out.println("//////////////////////");
+                    if (Objects.equals(lock, "") || lock == null) {
+                        Calendar.isPassword = false;
+                    }
+                    else{
+                        Calendar.isPassword= true;
+                    }
+                    return;
+                }
+                if (!Objects.equals(lock, "")) {
                     TF[0] = true;
                     Calendar.isPassword = true;
                     ((LogInActivity)LogInActivity.context_login).isFirst = false;
@@ -137,8 +148,8 @@ public class AppPassWordActivity extends AppCompatActivity {
                                 lockNum.put("잠금번호", password);
                                 docRef.update(lockNum);
 
-                                Calendar.isPassword=true;
-                                Calendar.lock=false;
+                                Calendar.isPassword = true;
+                                Calendar.lock = false;
 
                                 Intent intent = new Intent(AppPassWordActivity.this, AppLock.class);
                                 intent.putExtra(AppLockConst.TYPE, (int) AppLockConst.ENABLE_PASSLOCK);
@@ -157,8 +168,10 @@ public class AppPassWordActivity extends AppCompatActivity {
                         if (!Objects.equals(lock, "")) {
                             if (lock.equals(password)) {
                                 lockNum.put("잠금번호", "");
+
+
                                 docRef.update(lockNum);
-                                Calendar.isPassword=false;
+                                Calendar.isPassword = false;
                                 Intent intent = new Intent(AppPassWordActivity.this, AppLock.class);
                                 intent.putExtra(AppLockConst.TYPE, (int) AppLockConst.DISABLE_PASSLOCK);
                                 setResult(RESULT_OK, intent);
@@ -167,7 +180,7 @@ public class AppPassWordActivity extends AppCompatActivity {
                                 Toast.makeText(AppPassWordActivity.this, "비밀번호가 틀립니다.", Toast.LENGTH_SHORT).show();
                                 onClear();
                             }
-                        }else {
+                        } else {
                             setResult(RESULT_CANCELED);
                             finish();
                         }
@@ -177,8 +190,7 @@ public class AppPassWordActivity extends AppCompatActivity {
                             onClear();
                             changePwdUnlock = true;
                             Toast.makeText(AppPassWordActivity.this, "새로운 비밀번호 입력", Toast.LENGTH_SHORT).show();
-                        }
-                        else if (changePwdUnlock) {
+                        } else if (changePwdUnlock) {
                             if (oldPwd.equals("")) {
                                 oldPwd = password;
                                 onClear();
@@ -212,7 +224,7 @@ public class AppPassWordActivity extends AppCompatActivity {
                         if (Objects.equals(lock, password)) {
                             Intent intent = new Intent(AppPassWordActivity.this, AppLock.class);
                             intent.putExtra(AppLockConst.TYPE, (int) AppLockConst.UNLOCK_PASSWORD);
-                            Calendar.lock=false;
+                            Calendar.lock = false;
                             setResult(RESULT_OK, intent);
                             finish();
                         } else {
