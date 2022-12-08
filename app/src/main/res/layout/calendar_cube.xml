@@ -6,7 +6,7 @@
     android:foreground="?attr/selectableItemBackground"
     android:orientation="vertical">
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/dayImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
