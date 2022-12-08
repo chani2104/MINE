@@ -63,7 +63,7 @@ public class Setting extends AppCompatActivity {
                             .setPositiveButton("로그아웃", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialogInterface, int i) {
 
-                                    Intent intent = new Intent(Setting.this , LogInActivity.class);
+                                    Intent intent = new Intent(getApplicationContext() , LogInActivity.class);
                                     Toast.makeText(Setting.this, "로그아웃에 성공했습니다.", Toast.LENGTH_SHORT).show();
                                     startActivity(intent);
 

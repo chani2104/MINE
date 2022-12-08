@@ -46,7 +46,7 @@
         <activity android:name=".AppPassWordActivity"/>
         <activity android:name=".UserDiary"/>
         <activity android:name=".WritingDiary"/>
-
+        <activity android:name=".Setting"/>
     </application>
 
 </manifest>
