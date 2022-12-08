@@ -97,6 +97,7 @@ public class LogInActivity extends AppCompatActivity {
                                     Intent lockIntent = new Intent(getApplicationContext(), AppPassWordActivity.class);
                                     intent.putExtra("id", doc);
                                     lockIntent.putExtra("lockID", doc);
+                                    Calendar.login = true;
                                     editor.putString("inputID", doc);
                                     editor.putString("inputPW", pw.toString());
                                     editor.putBoolean("isFirst", false);
