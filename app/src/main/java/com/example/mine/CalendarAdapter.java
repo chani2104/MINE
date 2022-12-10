@@ -53,7 +53,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             holder.dayText.setText(String.valueOf(day.getDayOfMonth()));
 
             //오늘 날짜 카메라 이미지
-            if (day.equals(CalendarUtil.selectedDate) && CalendarUtil.selectedYear == day.getYear() && (CalendarUtil.selectedMonth.equals(day.getMonth()))) {
+            if (day.getYear() == LocalDate.now().getYear() && day.getDayOfYear() == LocalDate.now().getDayOfYear()) {
                 holder.cube_parentView.setBackgroundResource(R.drawable.camera);
                 holder.dayText.setText("");
 
