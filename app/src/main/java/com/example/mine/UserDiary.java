@@ -4,65 +4,56 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
-import com.example.mine.model.CalendarData;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import org.checkerframework.checker.units.qual.C;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 
-import java.time.LocalDate;
-
 public class UserDiary extends AppCompatActivity implements View.OnClickListener {
+    private final FirebaseStorage storage = FirebaseStorage.getInstance();
 
-    Button diaryBack;
-    Button setPicture;
-    Button setDiary;
-    ImageView backgroundImage;
+    private Button diaryBack;
+    private Button setPicture;
+    private Button setDiary;
+    private ImageView backgroundImage;
 
-    private FirebaseStorage storage;
-
+    private LocalDate date;
     private Uri cameraPhotoUri;
-    Calendar calendar;
-    private int selectedPosition = -1;
+
     //사진을 불러오는 장소
     private int imgFrom = -1;
 
     protected String imageFileName;
 
-    LocalDate selectedDay;
-    private CalendarAdapter adapter;
-
     private final ActivityResultLauncher<Uri> takePicture = registerForActivityResult(
             new ActivityResultContracts.TakePicture(),
             result -> {
                 if (!result) return;
-                adapter.setImage(selectedPosition, cameraPhotoUri);
+                // 이 화면에서 Calendar 의 화면에 접근할 수 없습니다.
+                // 이 화면에서는 데이터를 DB 에 올리는 기능만 해야 하고,
+                // Calendar 화면에서는 선택한 달의 데이터를 전부 가져와서 보여주는 기능을 가지도록 코딩하시면 됩니다.
             });
 
 
@@ -77,15 +68,17 @@ public class UserDiary extends AppCompatActivity implements View.OnClickListener
             new ActivityResultContracts.GetContent(),
             uri -> {
                 if (uri == null) return;
-                adapter.setImage(selectedPosition, uri);
             });
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.user_diary_before);
+
+        // Calendar 화면에서 선택한 날짜 입니다.
+        date = (LocalDate) getIntent().getSerializableExtra("localDate");
+        Log.d("UserDiary", date.toString());
 
         //이 액티비티에서 calendar로 돌아갈 때 잠금 안뜨도록
         Calendar.lock = false;
@@ -98,36 +91,19 @@ public class UserDiary extends AppCompatActivity implements View.OnClickListener
         diaryBack.setOnClickListener(this);
         setPicture.setOnClickListener(this);
         setDiary.setOnClickListener(this);
-
-        storage = FirebaseStorage.getInstance();
-
-
-        calendar = new Calendar();
-        adapter = Calendar.adapter;
-        selectedPosition = getIntent().getIntExtra("localDate", -1);
-
-        //const storage = getStorage(firebassApp)
-
     }
 
     @Override
     public void onClick(View view) {
         if (view == diaryBack) {
-            Intent intent = new Intent(this, Calendar.class);
-            startActivity(intent);
+            onBackPressed();
+
         } else if (view == setDiary) {
             Intent intent = new Intent(this, WritingDiary.class);
             startActivity(intent);
+
         } else if (view == setPicture) {
             showImagePicker();
-            CalendarData item = adapter.dayList.get(selectedPosition);
-            backgroundImage.setImageURI(item.imageUri);
-
-
-            selectedDay = item.localDate;
-            //uploadImg(item.imageUri);
-
-
         }
     }
 
@@ -137,7 +113,7 @@ public class UserDiary extends AppCompatActivity implements View.OnClickListener
         StorageReference reference;
         switch (imgFrom) {
             case 1:
-                String timeStamp = String.valueOf(selectedDay);
+                String timeStamp = String.valueOf(date);
                 String imageFileName = "IMAGE_" + timeStamp + "_.png";
                 reference = storage.getReference().child("item").child(imageFileName);
                 uploadTask = reference.putFile(uri);
@@ -148,7 +124,6 @@ public class UserDiary extends AppCompatActivity implements View.OnClickListener
                 break;
         }
 
-
        /* uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -156,7 +131,6 @@ public class UserDiary extends AppCompatActivity implements View.OnClickListener
             }
         });
 */
-
     }
 
     private File createImageFile() throws IOException {
@@ -179,7 +153,6 @@ public class UserDiary extends AppCompatActivity implements View.OnClickListener
             ex.printStackTrace();
             return;
         }
-
 
         this.cameraPhotoUri = FileProvider.getUriForFile(this,
                 "com.example.mine.fileprovider",
@@ -207,6 +180,4 @@ public class UserDiary extends AppCompatActivity implements View.OnClickListener
                 })
                 .show();
     }
-
-
 }

@@ -14,67 +14,50 @@ import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.mine.model.CalendarData;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class Calendar extends AppCompatActivity {
-    private FirebaseStorage storage;
-    private ViewPager2 viewPager2;
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private ViewPager2 viewPager;
     private TextView monthYearText;
-    private RecyclerView recyclerView;
-    protected static CalendarAdapter adapter;
 
-    private int selectedPosition = -1;
-    private Uri cameraPhotoUri;
-
-    AppPassWordActivity appPassWordActivity;
-    static boolean isPassword=false;
+    private AppPassWordActivity appPassWordActivity;
+    static boolean isPassword = false;
     static boolean lock = true;
     static boolean login = false;
 
-    private final ActivityResultLauncher<Uri> takePicture = registerForActivityResult(
-            new ActivityResultContracts.TakePicture(),
-            result -> {
-                if (!result) return;
-                adapter.setImage(selectedPosition, cameraPhotoUri);
-            });
-
-    private final ActivityResultLauncher<String> requestPermission = registerForActivityResult(
-            new ActivityResultContracts.RequestPermission(),
-            result -> {
-                if (!result) return;
-                takePicture.launch(cameraPhotoUri);
-            });
-
-
-    protected final ActivityResultLauncher<String> getContent = registerForActivityResult(
-            new ActivityResultContracts.GetContent(),
-            uri -> {
-                if (uri == null) return;
-                adapter.setImage(selectedPosition, uri);
-            });
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,64 +65,20 @@ public class Calendar extends AppCompatActivity {
 
         appPassWordActivity = new AppPassWordActivity();
 
-        if(login) {
-            //잠금설정
+        if (login) {
+            // 잠금설정
             isPassLock();
         }
-        storage = FirebaseStorage.getInstance();
 
+        onInit();
+    }
+
+    private void onInit() {
         monthYearText = findViewById(R.id.monthYearText);
-        recyclerView = findViewById(R.id.recycle_view);
-
         ImageButton album = findViewById(R.id.album);
         ImageButton set = findViewById(R.id.setting);
+        viewPager = findViewById(R.id.view_pager);
 
-
-        //현재 날짜
-        CalendarUtil.selectedDate = LocalDate.now();
-        CalendarUtil.selectedYear = LocalDate.now().getYear();
-        CalendarUtil.selectedMonth = LocalDate.now().getMonth();
-        setMonthView();
-
-        recyclerView.setItemAnimator(null);
-        adapter.setOnItemClickListener(position -> {
-            selectedPosition = position;
-            Intent intent = new Intent(this,UserDiary.class);
-            intent.putExtra("localDate",selectedPosition);
-            startActivity(intent);
-        });
-
-///스와이프 화면 전환
-/* View pager 로 월을 chage
-
-        ///스와이프 화면 전환
-      /*  viewPager2 = findViewById(R.id.view_pager);
-        viewPager2.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
-        viewPager2.setAdapter(adapter);*/
-/* View pager 로 월을 change
-        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder viewHolder1) {
-                return false;
-            }
-
-            @Override
-            public boolean isLongPressDragEnabled() {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                if (direction == ItemTouchHelper.RIGHT) {
-                    CalendarUtil.selectedDate = CalendarUtil.selectedDate.minusMonths(1);
-                    setMonthView();
-                } else if (direction == ItemTouchHelper.LEFT) {
-                    CalendarUtil.selectedDate = CalendarUtil.selectedDate.plusMonths(1);
-                    setMonthView();
-                }
-            }
-        }).attachToRecyclerView(recyclerView);
-*/
         set.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -148,76 +87,77 @@ public class Calendar extends AppCompatActivity {
             }
         });
 
-    }
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
 
-
-    //화면 세팅
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void setMonthView() {
-        //년월 텍스트뷰
-        monthYearText.setText(monthYearFromDate(CalendarUtil.selectedDate));
-
-        //월 가져옴
-        ArrayList<CalendarData> dayList = daysInMonthArray(CalendarUtil.selectedDate);
-        adapter = new CalendarAdapter(dayList);
-
-        // 일~월 열 레이아웃
-        RecyclerView.LayoutManager manager = new GridLayoutManager(getApplicationContext(), 7);
-        recyclerView.setLayoutManager(manager);
-        recyclerView.setAdapter(adapter);
-    }
-
-    //연도, 월 출력
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private String monthYearFromDate(LocalDate date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM월");
-        return date.format(formatter);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private ArrayList<CalendarData> daysInMonthArray(LocalDate date) {
-        ArrayList<CalendarData> dayList = new ArrayList<>();
-
-        YearMonth yearMonth = YearMonth.from(date);
-
-        //마지막&첫날 날짜 가져오기
-        int lastDay = yearMonth.lengthOfMonth();
-        LocalDate firstDay = CalendarUtil.selectedDate.withDayOfMonth(1);
-
-        //첫날 요일 월1~일7
-        int dayOfWeek = firstDay.getDayOfWeek().getValue();
-
-        //날짜 생성
-        for (int i = 1; i < 42; i++) {
-            if (i <= dayOfWeek || i > lastDay + dayOfWeek) {
-                dayList.add(null);
-            } else {
-                LocalDate day = LocalDate.of(CalendarUtil.selectedDate.getYear(), CalendarUtil.selectedDate.getMonth(), i - dayOfWeek);
-                dayList.add(new CalendarData(day));
+                try {
+                    LocalDate yearMonth = ((CalendarViewPagerAdapter) Objects.requireNonNull(viewPager.getAdapter()))
+                            .yearMonthList
+                            .get(position);
+                    setMonthView(yearMonth);
+                } catch (Exception ignore) {
+                }
             }
-        }
-        return dayList;
+        });
+
+        // 달력이 깜빡거리는게 싫으시면 아래 코드를 주석 처리 하시면 됩니다.
+        // 아래 코드 주석처리시, Firestore 에서 데이터를 읽기 전까지는 화면에 달력이 표시되지 않습니다.
+        viewPager.setAdapter(new CalendarViewPagerAdapter(this, Collections.singletonList(LocalDate.now())));
+
+        db.collection("user_info")
+                .orderBy("가입날짜")
+                .limit(1)
+                .get()
+                .addOnCompleteListener(this, task -> {
+                    LocalDate now = LocalDate.now();
+                    LocalDate oldestDate = now;
+
+                    if (task.getException() != null) {
+                        task.getException().printStackTrace();
+                    }
+
+                    QuerySnapshot snapshot = task.getResult();
+                    if (snapshot != null && !snapshot.isEmpty()) {
+                        try {
+                            String source = snapshot.getDocuments().get(0).getString("가입날짜");
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM", Locale.US);
+                            Date date = dateFormat.parse(source);
+                            oldestDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    ArrayList<LocalDate> yearMonthList = new ArrayList<>();
+                    LocalDate start = LocalDate.of(oldestDate.getYear(), oldestDate.getMonth(), 1);
+                    LocalDate end = LocalDate.of(now.getYear(), now.getMonth(), 1);
+
+                    while (!start.isAfter(end)) {
+                        yearMonthList.add(start);
+                        // Log.d("Calendar", start.toString());
+
+                        start = start.plusMonths(1);
+                    }
+
+                    viewPager.setAdapter(new CalendarViewPagerAdapter(this, yearMonthList));
+                    viewPager.setCurrentItem(yearMonthList.size() - 1, false);
+                });
     }
 
-    private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.KOREA).format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-
-        return File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-
+    private void setMonthView(LocalDate yearMonth) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM월");
+        monthYearText.setText(yearMonth.format(formatter));
     }
 
-    //잠금기능
-
+    // 잠금기능
     protected boolean isPassLock() {
-        appPassWordActivity.database(4,null);
+        appPassWordActivity.database(4, null);
         return isPassword;
     }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -233,12 +173,31 @@ public class Calendar extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (login){
-            if(isPassLock() ) {
+        if (login) {
+            if (isPassLock()) {
                 lock = true;
             }
         }
     }
 
+    private static class CalendarViewPagerAdapter extends FragmentStateAdapter {
+        private final List<LocalDate> yearMonthList;
 
+        public CalendarViewPagerAdapter(@NonNull FragmentActivity fragmentActivity,
+                                        List<LocalDate> yearMonthList) {
+            super(fragmentActivity);
+            this.yearMonthList = yearMonthList;
+        }
+
+        @NonNull
+        @Override
+        public Fragment createFragment(int position) {
+            return CalendarFragment.newInstance(yearMonthList.get(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return yearMonthList.size();
+        }
+    }
 }
