@@ -51,7 +51,8 @@ public class MultiImageActivity extends AppCompatActivity {
     RecyclerView recyclerView;  // 이미지를 보여줄 리사이클러뷰
     MultiImageAdapter adapter;  // 리사이클러뷰에 적용시킬 어댑터
 
-    static LocalDate date;
+    LocalDate date;
+
 
     //사진을 불러오는 장소
     private int imgFrom = -1;
@@ -75,8 +76,6 @@ public class MultiImageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_multi_image);
 
         date = (LocalDate) getIntent().getSerializableExtra("localDate");
-
-
 
 
         //Back버튼
@@ -167,7 +166,7 @@ public class MultiImageActivity extends AppCompatActivity {
                 uriList.add(imageUri);
                 uploadImg(imageUri);
 
-                adapter = new MultiImageAdapter(uriList, getApplicationContext());
+                adapter = new MultiImageAdapter(uriList, getApplicationContext(),date);
                 recyclerView.setAdapter(adapter);
                 recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true));
             } else {      // 이미지를 여러장 선택한 경우
@@ -189,7 +188,7 @@ public class MultiImageActivity extends AppCompatActivity {
                         }
                     }
 
-                    adapter = new MultiImageAdapter(uriList, getApplicationContext());
+                    adapter = new MultiImageAdapter(uriList, getApplicationContext(),date);
                     recyclerView.setAdapter(adapter);   // 리사이클러뷰에 어댑터 세팅
                     recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));     // 리사이클러뷰 수평 스크롤 적용
                 }
@@ -232,7 +231,7 @@ public class MultiImageActivity extends AppCompatActivity {
         // firestore에 입력
         Map<String, Object> diaryDefault = new HashMap<>();
 
-        String str= pictureNum+ "." + timeStamp;
+        String str= pictureNum+ "." + date;
 
         db.collection("user_photo").document(loginID).collection("Photo").document(str).set(diaryDefault);
     }

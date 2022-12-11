@@ -1,6 +1,9 @@
 package com.example.mine;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -19,6 +22,9 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import com.google.firebase.storage.StorageReference;
+
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -33,9 +39,17 @@ public class WritingDiary extends AppCompatActivity implements View.OnClickListe
     String date;
     String userInput;
 
+    LocalDate date;
+    String userInput;
+
+    private int position;
+
     //시간
     Instant time;
 
+    DocumentReference docRef;
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,12 +57,26 @@ public class WritingDiary extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.user_diary);
 
         Intent intent = getIntent();
+        date =  (LocalDate) getIntent().getSerializableExtra("localDate");
+        position = intent.getIntExtra("position",-1);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        StorageReference reference;
+        SharedPreferences sharedPref = LogInActivity.context_login.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
+        String loginID = sharedPref.getString("inputID", "");
+
+        String str = position + "." + date;
+        docRef = db.collection("user_photo").document(loginID).collection("Photo").document(str);
+
         date = intent.getStringExtra("localDate");
 
         writingBack = findViewById(R.id.writing_back);
         deleteDiary = findViewById(R.id.delete_Diary);
         saveDiary = findViewById(R.id.save_diary);
+
         writeDiary = findViewById(R.id.write_diary);
+        writeDiary.requestFocus();
 
         writingBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,14 +93,8 @@ public class WritingDiary extends AppCompatActivity implements View.OnClickListe
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
-    public void onClick(View view) {
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String lockID = ((LogInActivity) LogInActivity.context_login).doc;
-        System.out.println(lockID);
-        DocumentReference docRef = db.collection("user_photo").document(lockID).collection("photo").document(date);
+     public void onClick(View view) {
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 DocumentSnapshot document = task.getResult();
@@ -83,13 +105,9 @@ public class WritingDiary extends AppCompatActivity implements View.OnClickListe
 
 
                 else if (view == saveDiary) {
-
-                    if(time == null){
-                        time = Instant.now();
-                    }
                     userInput = writeDiary.getText().toString();
-                    input.put(String.valueOf(time),userInput);
-                    docRef.update(input);
+                    input.put("일기",userInput);
+                    docRef.set(input);
                 }
             }
         });
