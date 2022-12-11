@@ -50,6 +50,7 @@ public class MultiImageActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;  // 이미지를 보여줄 리사이클러뷰
     MultiImageAdapter adapter;  // 리사이클러뷰에 적용시킬 어댑터
+    MultiImageAdapterText textAdapter;
 
     LocalDate date;
 
@@ -87,21 +88,27 @@ public class MultiImageActivity extends AppCompatActivity {
             }
         });
 
+        //Fragment
+        manager = getSupportFragmentManager();
+        imageFragment = new ImageFragment();
+        textFragment = new TextFragment();
+
         //Text읽기 버튼
         Button btn_readText = findViewById(R.id.readText);
         btn_readText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (fragmentNum == 1) {
+                    adapter = new MultiImageAdapter(uriList, getApplicationContext(),date, fragmentNum);
+                    recyclerView.setAdapter(adapter);   // 리사이클러뷰에 어댑터 세팅
+                    recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
                     fragmentNum = 0;
-                    FragmentTransaction tf = manager.beginTransaction();
-                    tf.replace(R.id.recyclerView, textFragment);
-                    tf.commit();
-                } else {
+                }
+                else{
+                    adapter = new MultiImageAdapter(uriList, getApplicationContext(),date, fragmentNum);
+                    recyclerView.setAdapter(adapter);   // 리사이클러뷰에 어댑터 세팅
+                    recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
                     fragmentNum = 1;
-                    FragmentTransaction tf = manager.beginTransaction();
-                    tf.replace(R.id.recyclerView, imageFragment);
-                    tf.commit();
                 }
             }
         });
@@ -132,18 +139,15 @@ public class MultiImageActivity extends AppCompatActivity {
         });
         recyclerView = findViewById(R.id.recyclerView);
 
-        //Fragment
-        manager = getSupportFragmentManager();
-        imageFragment = new ImageFragment();
-        textFragment = new TextFragment();
-
         downloadImg();
 
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                adapter = new MultiImageAdapter(uriList, getApplicationContext(), date);
+            
+                adapter = new MultiImageAdapter(uriList, getApplicationContext(),date,fragmentNum);
+
                 recyclerView.setAdapter(adapter);   // 리사이클러뷰에 어댑터 세팅
                 recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
             }
@@ -159,14 +163,17 @@ public class MultiImageActivity extends AppCompatActivity {
 
         if (data == null) {   // 어떤 이미지도 선택하지 않은 경우
             Toast.makeText(getApplicationContext(), "이미지를 선택하지 않았습니다.", Toast.LENGTH_LONG).show();
-        } else {   // 이미지를 하나라도 선택한 경우
+        } else {// 이미지를 하나라도 선택한 경우
+
             if (data.getClipData() == null) {     // 이미지를 하나만 선택한 경우
                 Log.e("single choice: ", String.valueOf(data.getData()));
                 Uri imageUri = data.getData();
                 uriList.add(imageUri);
                 uploadImg(imageUri);
                 pictureNum++;
-                adapter = new MultiImageAdapter(uriList, getApplicationContext(),date);
+
+                adapter = new MultiImageAdapter(uriList, getApplicationContext(),date,fragmentNum);
+
                 recyclerView.setAdapter(adapter);
                 recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true));
             } else {      // 이미지를 여러장 선택한 경우
@@ -189,7 +196,7 @@ public class MultiImageActivity extends AppCompatActivity {
                         }
                     }
 
-                    adapter = new MultiImageAdapter(uriList, getApplicationContext(),date);
+                    adapter = new MultiImageAdapter(uriList, getApplicationContext(),date,fragmentNum);
                     recyclerView.setAdapter(adapter);   // 리사이클러뷰에 어댑터 세팅
                     recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));     // 리사이클러뷰 수평 스크롤 적용
                 }
@@ -213,12 +220,14 @@ public class MultiImageActivity extends AppCompatActivity {
         String loginID = sharedPref.getString("inputID", "");
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String lockID = ((LogInActivity) LogInActivity.context_login).doc;
-        System.out.println(lockID);
+        Map<String, Object> diaryDefault = new HashMap<>();
+        diaryDefault.put("일기","");
+
+        String str= pictureNum+ "." + date;
 
 
         //storage에 입력
-        String str= pictureNum+ "." + date;
+
         reference = storage.getReference().child(loginID).child(String.valueOf(date)).child(str);
         uploadTask = reference.putFile(uri);
         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -229,7 +238,6 @@ public class MultiImageActivity extends AppCompatActivity {
         });
 
         // firestore에 입력
-        Map<String, Object> diaryDefault = new HashMap<>();
 
         db.collection("user_photo").document(loginID).collection("Photo").document(str).set(diaryDefault);
     }
