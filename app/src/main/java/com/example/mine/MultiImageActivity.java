@@ -165,7 +165,7 @@ public class MultiImageActivity extends AppCompatActivity {
                 Uri imageUri = data.getData();
                 uriList.add(imageUri);
                 uploadImg(imageUri);
-
+                pictureNum++;
                 adapter = new MultiImageAdapter(uriList, getApplicationContext(),date);
                 recyclerView.setAdapter(adapter);
                 recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true));
@@ -183,6 +183,7 @@ public class MultiImageActivity extends AppCompatActivity {
                         try {
                             uriList.add(imageUri);  //uri를 list에 담는다.
                             uploadImg(imageUri);
+                            pictureNum++;
                         } catch (Exception e) {
                             Log.e(TAG, "File select error", e);
                         }
@@ -215,11 +216,10 @@ public class MultiImageActivity extends AppCompatActivity {
         String lockID = ((LogInActivity) LogInActivity.context_login).doc;
         System.out.println(lockID);
 
-        String timeStamp = String.valueOf(Instant.now());
-        String imageFileName = "IMAGE" + timeStamp + "_.png";
 
         //storage에 입력
-        reference = storage.getReference().child(loginID).child(String.valueOf(date)).child(imageFileName);
+        String str= pictureNum+ "." + date;
+        reference = storage.getReference().child(loginID).child(String.valueOf(date)).child(str);
         uploadTask = reference.putFile(uri);
         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -230,8 +230,6 @@ public class MultiImageActivity extends AppCompatActivity {
 
         // firestore에 입력
         Map<String, Object> diaryDefault = new HashMap<>();
-
-        String str= pictureNum+ "." + date;
 
         db.collection("user_photo").document(loginID).collection("Photo").document(str).set(diaryDefault);
     }
@@ -247,6 +245,7 @@ public class MultiImageActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(ListResult listResult) {
                         for (StorageReference item : listResult.getItems()) {
+                            pictureNum++;
                             item.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Uri> task) {
