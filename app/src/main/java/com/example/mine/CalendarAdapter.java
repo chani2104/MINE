@@ -1,5 +1,7 @@
 package com.example.mine;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -29,7 +31,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
     ArrayList<CalendarData> dayList;
     private Consumer<Integer> onClickListener;
-
+    private final FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference reference;
+    SharedPreferences sharedPref = LogInActivity.context_login.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
     public CalendarAdapter(ArrayList<CalendarData> dayList) {
         this.dayList = dayList;
     }
@@ -49,6 +53,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     public void onBindViewHolder(@NonNull CalendarViewHolder holder, int position) {
         CalendarData item = dayList.get(position);
         holder.itemView.setOnClickListener(null);
+
 
         //날짜 세팅
         if (item == null) {
@@ -70,9 +75,14 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                     holder.dayText.setText("");}
             }
             // 선택한 이미지 삽입
-         if (item.imageUri != null) {
+       /*  if (item.imageUri != null) {
                 holder.dayImageView.setImageURI(item.imageUri);
-            }
+            }*/
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            String loginID = sharedPref.getString("inputID", "");
+            String str="0."+day;
+            reference = storage.getReference().child(loginID).child(String.valueOf(day)).child(str);
+            Glide.with(holder.itemView.getContext()).load(reference).into(holder.dayImageView);
 
         }
 
@@ -103,7 +113,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         TextView dayText;
         ImageView dayImageView;
         View cube_parentView;
-       ;
+
         //gs://mine-9e585.appspot.com
         public CalendarViewHolder(@NonNull View itemView) {
             super(itemView);
