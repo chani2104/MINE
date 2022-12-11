@@ -1,3 +1,4 @@
+/*
 package com.example.mine;
 
 import static com.example.mine.AppLockConst.ENABLE_PASSLOCK;
@@ -125,10 +126,12 @@ public class UserDiary extends AppCompatActivity implements View.OnClickListener
     }
 
     private void handleActivityResult(ActivityResult result) {
-        /*if (result.getResultCode() != RESULT_OK) {
+        */
+/*if (result.getResultCode() != RESULT_OK) {
             System.out.println("cancel");
             return;
-        }*/
+        }*//*
+
 
         Intent data = result.getData();
 
@@ -220,13 +223,15 @@ public class UserDiary extends AppCompatActivity implements View.OnClickListener
                 break;
         }
 
-       /* uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+       */
+/* uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 //업로드 성공 시 동작
             }
         });
-*/
+*//*
+
     }
 
     private File createImageFile() throws IOException {
@@ -235,9 +240,15 @@ public class UserDiary extends AppCompatActivity implements View.OnClickListener
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
         return File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
+                imageFileName,  */
+/* prefix *//*
+
+                ".jpg",         */
+/* suffix *//*
+
+                storageDir      */
+/* directory *//*
+
         );
     }
 
@@ -276,4 +287,4 @@ public class UserDiary extends AppCompatActivity implements View.OnClickListener
                 })
                 .show();
     }
-}
+}*/

@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/black"
     android:orientation="vertical"
-    tools:context=".UserDiary">
+
+    >
 
     <LinearLayout
         android:layout_width="wrap_content"

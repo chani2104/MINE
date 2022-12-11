@@ -21,24 +21,24 @@
 
     </LinearLayout>
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_weight="1"
         android:gravity="center"
-        android:layout_weight="1">
+        android:orientation="vertical">
 
         <EditText
             android:id="@+id/write_diary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="#ff000000"
             android:layout_margin="30dp"
+            android:background="#ff000000"
             android:textColor="#ffffffff"
             android:textSize="20dp" />
     </LinearLayout>
-
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -13,9 +13,16 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
+
 public class MultiImageAdapter extends RecyclerView.Adapter<MultiImageAdapter.ViewHolder> {
     private ArrayList<Uri> mData = null;
     private Context mContext = null;
+
+    public interface ItemClickListener {
+        void onItemClick(int position);
+    }
+
+    ItemClickListener itemClickListener;
 
     // 생성자에서 데이터 리스트 객체, Context를 전달받음.
     MultiImageAdapter(ArrayList<Uri> list, Context context) {
@@ -24,11 +31,12 @@ public class MultiImageAdapter extends RecyclerView.Adapter<MultiImageAdapter.Vi
     }
 
     // 아이템 뷰를 저장하는 뷰홀더 클래스.
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView image;
 
-        ViewHolder(View itemView) {
+
+        ViewHolder(View itemView, ItemClickListener itemClickListener) {
             super(itemView);
 
             // 뷰 객체에 대한 참조.
@@ -44,7 +52,7 @@ public class MultiImageAdapter extends RecyclerView.Adapter<MultiImageAdapter.Vi
         Context context = parent.getContext();
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);    // context에서 LayoutInflater 객체를 얻는다.
         View view = inflater.inflate(R.layout.multi_photo_item, parent, false);    // 리사이클러뷰에 들어갈 아이템뷰의 레이아웃을 inflate.
-        MultiImageAdapter.ViewHolder vh = new MultiImageAdapter.ViewHolder(view);
+        MultiImageAdapter.ViewHolder vh = new MultiImageAdapter.ViewHolder(view, itemClickListener); //  수정
 
         return vh;
     }
@@ -57,6 +65,8 @@ public class MultiImageAdapter extends RecyclerView.Adapter<MultiImageAdapter.Vi
         Glide.with(mContext)
                 .load(image_uri)
                 .into(holder.image);
+
+
     }
 
     // getItemCount() - 전체 데이터 갯수 리턴.
@@ -65,5 +75,3 @@ public class MultiImageAdapter extends RecyclerView.Adapter<MultiImageAdapter.Vi
         return mData.size();
     }
 }
-
-
