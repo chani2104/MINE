@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/paper_background"
     android:orientation="vertical">
 
     <Button
@@ -20,8 +21,8 @@
 
     <Button
         android:id="@+id/btnChangePwd"
-        android:onClick="btnChangePwd"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="암호 변경"/>
+        android:onClick="btnChangePwd"
+        android:text="암호 변경" />
 </LinearLayout>
