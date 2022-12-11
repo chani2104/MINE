@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -22,6 +23,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 
@@ -36,11 +38,9 @@ public class WritingDiary extends AppCompatActivity implements View.OnClickListe
     Button deleteDiary;
     Button saveDiary;
     EditText writeDiary;
-    String date;
-    String userInput;
 
-    LocalDate date;
     String userInput;
+    LocalDate date;
 
     private int position;
 
@@ -56,6 +56,11 @@ public class WritingDiary extends AppCompatActivity implements View.OnClickListe
 
         setContentView(R.layout.user_diary);
 
+        writingBack = findViewById(R.id.writing_back);
+        deleteDiary = findViewById(R.id.delete_Diary);
+        saveDiary = findViewById(R.id.save_diary);
+        writeDiary = findViewById(R.id.write_diary);
+
         Intent intent = getIntent();
         date =  (LocalDate) getIntent().getSerializableExtra("localDate");
         position = intent.getIntExtra("position",-1);
@@ -69,13 +74,14 @@ public class WritingDiary extends AppCompatActivity implements View.OnClickListe
         String str = position + "." + date;
         docRef = db.collection("user_photo").document(loginID).collection("Photo").document(str);
 
-        date = intent.getStringExtra("localDate");
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                DocumentSnapshot document = task.getResult();
+                writeDiary.setText(document.getString("일기"));
+            }
+        });
 
-        writingBack = findViewById(R.id.writing_back);
-        deleteDiary = findViewById(R.id.delete_Diary);
-        saveDiary = findViewById(R.id.save_diary);
-
-        writeDiary = findViewById(R.id.write_diary);
         writeDiary.requestFocus();
 
         writingBack.setOnClickListener(new View.OnClickListener() {
