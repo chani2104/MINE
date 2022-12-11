@@ -53,6 +53,10 @@ public class SignupActivity extends AppCompatActivity {
         data.put("가입날짜", getTime());
         data.put("잠금번호", "");
 
+        Map<String, Object> defaultData = new HashMap<>();
+        defaultData.put("이미지1", "default");
+        defaultData.put("일기장1", "default");
+
         if (nickName.getText().toString().isEmpty())
             Toast.makeText(this, "닉네임을 입력해주세요.", Toast.LENGTH_SHORT).show();
         else if (ID.getText().toString().isEmpty())
@@ -80,6 +84,8 @@ public class SignupActivity extends AppCompatActivity {
                                     .set(data)
                                     .addOnSuccessListener(documentReference -> Log.d(TAG, "DocumentSnapshot Success"))
                                     .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
+                            db.collection("user_photo").document(ID.getText().toString()).collection("Photo").document("Default")
+                                    .set(defaultData);
                         }
                     });
             Intent intent = new Intent(getApplicationContext(), LogInActivity.class);
