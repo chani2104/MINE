@@ -2,6 +2,7 @@ package com.example.mine;
 
 import static com.example.mine.R.layout.*;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
@@ -13,14 +14,22 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Setting extends AppCompatActivity {
 
@@ -54,8 +63,41 @@ public class Setting extends AppCompatActivity {
                 }
                 //닉네임변경
                 if(i==1){
-                 //다이어로그창
-                }
+                    LinearLayout linear= (LinearLayout) View.inflate(Setting.this, dialog_editext,null);
+
+                    new AlertDialog.Builder(Setting.this)
+                            .setView(linear)
+                            .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    EditText nick1 = (EditText) linear.findViewById(R.id.nickname_edit);
+                                    String nick=nick1.getText().toString();
+                                    String loginname = ((LogInActivity)LogInActivity.context_login).doc;
+                                    DocumentReference docRef = db.collection("user_info").document(loginname);
+                                    docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            DocumentSnapshot document = task.getResult();
+                                            Map<String, Object> nickName = new HashMap<>();
+
+                                            String nickn = document.getString("닉네임");
+                                            nickName.put("닉네임", nick);
+                                            docRef.update(nickName);
+                                        }
+                                    });
+
+                                    // db.collection("user_info").document(nickname)
+
+                                    dialog.dismiss();
+
+                                }
+                            })
+                            .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    dialog.dismiss();
+                                }
+                            })
+                            .show();}
+
                 //로그아웃
                 if(i==2){
                     Calendar.login = false;
