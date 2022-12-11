@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -51,6 +52,7 @@ public class MultiImageActivity extends AppCompatActivity {
     MultiImageAdapter adapter;  // 리사이클러뷰에 적용시킬 어댑터
 
     LocalDate date;
+
 
     //사진을 불러오는 장소
     private int imgFrom = -1;
@@ -137,9 +139,16 @@ public class MultiImageActivity extends AppCompatActivity {
 
         downloadImg();
 
-        adapter = new MultiImageAdapter(uriList, getApplicationContext(),date);
-        recyclerView.setAdapter(adapter);   // 리사이클러뷰에 어댑터 세팅
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                adapter = new MultiImageAdapter(uriList, getApplicationContext());
+                recyclerView.setAdapter(adapter);   // 리사이클러뷰에 어댑터 세팅
+                recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
+            }
+        }, 1000); //딜레이 타임 조절
+
     }
 
     // 앨범에서 액티비티로 돌아온 후 실행되는 메서드
