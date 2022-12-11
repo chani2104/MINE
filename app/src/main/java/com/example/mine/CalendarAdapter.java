@@ -53,15 +53,15 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             holder.dayText.setText(String.valueOf(day.getDayOfMonth()));
 
             //오늘 날짜 카메라 이미지
-            if (day.getYear() == LocalDate.now().getYear() && day.getDayOfYear() == LocalDate.now().getDayOfYear()) {
-                holder.cube_parentView.setBackgroundResource(R.drawable.camera);
-                holder.dayText.setText("");
-
+            if(day.getYear()<=LocalDate.now().getYear()&&day.getDayOfYear() <= LocalDate.now().getDayOfYear()){
                 holder.itemView.setOnClickListener(v -> {
                     if (onClickListener != null) {
                         onClickListener.accept(position);
                     }
                 });
+                if (day.getYear() == LocalDate.now().getYear() && day.getDayOfYear() == LocalDate.now().getDayOfYear()) {
+                    holder.cube_parentView.setBackgroundResource(R.drawable.camera);
+                    holder.dayText.setText("");}
             }
             // 선택한 이미지 삽입
             if (item.imageUri != null) {
