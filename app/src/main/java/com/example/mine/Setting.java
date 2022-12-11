@@ -47,7 +47,8 @@ public class Setting extends AppCompatActivity {
         list.add("회원 탈퇴");
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String loginID = ((LogInActivity)LogInActivity.context_login).doc;
+        SharedPreferences sharedPref = LogInActivity.context_login.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
+        String loginID = sharedPref.getString("inputID", "");
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,list);
         listview.setAdapter(adapter);

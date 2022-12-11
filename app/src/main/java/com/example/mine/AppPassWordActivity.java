@@ -2,7 +2,9 @@ package com.example.mine;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -108,9 +110,10 @@ public class AppPassWordActivity extends AppCompatActivity {
     public void database(int num, String password) {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String lockID = ((LogInActivity)LogInActivity.context_login).doc;
-        System.out.println(lockID);
-        DocumentReference docRef = db.collection("user_info").document(lockID);
+        SharedPreferences sharedPref = LogInActivity.context_login.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
+        String loginID = sharedPref.getString("inputID", "");
+        System.out.println(loginID);
+        DocumentReference docRef = db.collection("user_info").document(loginID);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
 
             @Override

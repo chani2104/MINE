@@ -93,7 +93,8 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         notifyItemChanged(position);
     }
 
-    public void setOnItemClickListener(Consumer<Integer> listener) {
+    public void setOnItemClickListener(Consumer<Integer> listener)
+    {
         this.onClickListener = listener;
     }
 

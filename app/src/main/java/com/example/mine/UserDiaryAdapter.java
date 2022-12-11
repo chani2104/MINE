@@ -1,3 +1,4 @@
+/*
 package com.example.mine;
 
 import android.content.Context;
@@ -87,6 +88,7 @@ public class UserDiaryAdapter extends RecyclerView.Adapter<UserDiaryAdapter.View
 
 
 
+*/
 /*
 
     @NonNull
@@ -107,8 +109,11 @@ public class UserDiaryAdapter extends RecyclerView.Adapter<UserDiaryAdapter.View
         CalendarData item = dayList.get(position);
         holder.itemView.setOnClickListener(null);
 
-        */
+        *//*
+
+*/
 /*//*
+/*
 /날짜 세팅
         if (item == null) {
             holder.dayText.setText("");
@@ -133,6 +138,8 @@ public class UserDiaryAdapter extends RecyclerView.Adapter<UserDiaryAdapter.View
                 holder.dayImageView.setImageURI(item.imageUri);
             }
         }*//*
+*/
+/*
 
     }
 
@@ -149,10 +156,14 @@ public class UserDiaryAdapter extends RecyclerView.Adapter<UserDiaryAdapter.View
         notifyItemChanged(position);
     }
 
-    */
+    *//*
+
+*/
 /*public void setOnItemClickListener(Consumer<Integer> listener) {
         this.onClickListener = listener;
     }*//*
+*/
+/*
 
 
 
@@ -182,3 +193,4 @@ public class UserDiaryAdapter extends RecyclerView.Adapter<UserDiaryAdapter.View
     }
 }
 */
+

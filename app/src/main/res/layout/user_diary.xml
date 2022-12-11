@@ -33,11 +33,14 @@
             android:id="@+id/write_diary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:scrollHorizontally="false"
+            android:hint="---"
             android:layout_gravity="center"
             android:layout_margin="30dp"
             android:background="#ff000000"
             android:textColor="#ffffffff"
-            android:textSize="20dp" />
+            android:textSize="20dp"/>
     </LinearLayout>
 
     <LinearLayout
@@ -60,7 +63,7 @@
                 android:layout_width="45dp"
                 android:layout_height="45dp"
                 android:layout_gravity="center"
-                android:background="@drawable/pen" />
+                android:background="@drawable/trashbin" />
 
         </LinearLayout>
 
@@ -81,7 +84,7 @@
                 android:id="@+id/save_diary"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
-                android:background="@drawable/plus" />
+                android:background="@drawable/check" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
