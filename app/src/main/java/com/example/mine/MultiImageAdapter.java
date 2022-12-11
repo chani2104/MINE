@@ -1,6 +1,7 @@
 package com.example.mine;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,6 +62,14 @@ public class MultiImageAdapter extends RecyclerView.Adapter<MultiImageAdapter.Vi
     @Override
     public void onBindViewHolder(MultiImageAdapter.ViewHolder holder, int position) {
         Uri image_uri = mData.get(position);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), WritingDiary.class);
+                v.getContext().startActivity(intent);
+            }
+        });
 
         Glide.with(mContext)
                 .load(image_uri)

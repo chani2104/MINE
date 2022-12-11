@@ -2,10 +2,13 @@ package com.example.mine;
 
 import android.annotation.SuppressLint;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -30,6 +34,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.ktx.Firebase;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -39,8 +44,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.grpc.Context;
-
 public class MultiImageActivity extends AppCompatActivity {
     private static final String TAG = "MultiImageActivity";
     ArrayList<Uri> uriList = new ArrayList<>();     // 이미지의 uri를 담을 ArrayList 객체
@@ -48,7 +51,7 @@ public class MultiImageActivity extends AppCompatActivity {
     RecyclerView recyclerView;  // 이미지를 보여줄 리사이클러뷰
     MultiImageAdapter adapter;  // 리사이클러뷰에 적용시킬 어댑터
 
-    private LocalDate date;
+    static LocalDate date;
 
     //사진을 불러오는 장소
     private int imgFrom = -1;
@@ -59,6 +62,8 @@ public class MultiImageActivity extends AppCompatActivity {
     private FragmentManager manager;
     private ImageFragment imageFragment;
     private TextFragment textFragment;
+
+    private int pictureNum=0;
 
     private int fragmentNum = 1;
     private final FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -132,6 +137,19 @@ public class MultiImageActivity extends AppCompatActivity {
         manager = getSupportFragmentManager();
         imageFragment = new ImageFragment();
         textFragment = new TextFragment();
+
+        downloadImg();
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                adapter = new MultiImageAdapter(uriList, getApplicationContext());
+                recyclerView.setAdapter(adapter);   // 리사이클러뷰에 어댑터 세팅
+                recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
+            }
+        }, 1000); //딜레이 타임 조절
+
     }
 
     // 앨범에서 액티비티로 돌아온 후 실행되는 메서드
@@ -188,37 +206,66 @@ public class MultiImageActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     protected void uploadImg(Uri uri) {
+
         UploadTask uploadTask = null;
         StorageReference reference;
+        SharedPreferences sharedPref = LogInActivity.context_login.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
+        String loginID = sharedPref.getString("inputID", "");
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String lockID = ((LogInActivity) LogInActivity.context_login).doc;
         System.out.println(lockID);
-        DocumentReference docRef = db.collection("user_photo").document(lockID).collection("photo").document(String.valueOf(date));
 
         String timeStamp = String.valueOf(Instant.now());
-        String imageFileName = "IMAGE_" + timeStamp + "_.png";
+        String imageFileName = "IMAGE" + timeStamp + "_.png";
 
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                DocumentSnapshot document = task.getResult();
-                Map<String, Object> input = new HashMap<>();
-                input.put(timeStamp,uri);
-                docRef.update(input);
-            }
-        });
-
-
-
-        reference = storage.getReference().child(lockID).child(imageFileName);
+        //storage에 입력
+        reference = storage.getReference().child(loginID).child(String.valueOf(date)).child(imageFileName);
         uploadTask = reference.putFile(uri);
         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-               Log.e("tag","uploding!");
+                Log.e("tag", "uploding!");
             }
         });
+
+        // firestore에 입력
+        Map<String, Object> diaryDefault = new HashMap<>();
+
+        String str= pictureNum+ "." + timeStamp;
+
+        db.collection("user_photo").document(loginID).collection("Photo").document(str).set(diaryDefault);
+    }
+
+    protected void downloadImg() {
+        SharedPreferences sharedPref = LogInActivity.context_login.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
+        String loginID = sharedPref.getString("inputID", "");
+        StorageReference listRef = storage.getReference();
+        System.out.println(loginID);
+
+        listRef.child(loginID).child(String.valueOf(date)).listAll()
+                .addOnSuccessListener(new OnSuccessListener<ListResult>() {
+                    @Override
+                    public void onSuccess(ListResult listResult) {
+                        for (StorageReference item : listResult.getItems()) {
+                            item.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    if (task.isSuccessful()) {
+                                        uriList.add(task.getResult());
+                                        Log.d("tag", "success");
+                                    }
+                                }
+                            });
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        uriList.clear();
+                        Log.d("tag", "failure");
+                    }
+                });
     }
 }
