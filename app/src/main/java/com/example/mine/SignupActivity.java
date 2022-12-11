@@ -54,8 +54,7 @@ public class SignupActivity extends AppCompatActivity {
         data.put("잠금번호", "");
 
         Map<String, Object> defaultData = new HashMap<>();
-        defaultData.put("이미지1", "default");
-        defaultData.put("일기장1", "default");
+        defaultData.put("일기", "default");
 
         if (nickName.getText().toString().isEmpty())
             Toast.makeText(this, "닉네임을 입력해주세요.", Toast.LENGTH_SHORT).show();
