@@ -143,7 +143,7 @@ public class MultiImageActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                adapter = new MultiImageAdapter(uriList, getApplicationContext());
+                adapter = new MultiImageAdapter(uriList, getApplicationContext(), date);
                 recyclerView.setAdapter(adapter);   // 리사이클러뷰에 어댑터 세팅
                 recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
             }

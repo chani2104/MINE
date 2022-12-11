@@ -36,11 +36,9 @@ public class WritingDiary extends AppCompatActivity implements View.OnClickListe
     Button deleteDiary;
     Button saveDiary;
     EditText writeDiary;
-    String date;
     String userInput;
 
     LocalDate date;
-    String userInput;
 
     private int position;
 
@@ -68,8 +66,6 @@ public class WritingDiary extends AppCompatActivity implements View.OnClickListe
 
         String str = position + "." + date;
         docRef = db.collection("user_photo").document(loginID).collection("Photo").document(str);
-
-        date = intent.getStringExtra("localDate");
 
         writingBack = findViewById(R.id.writing_back);
         deleteDiary = findViewById(R.id.delete_Diary);
@@ -107,6 +103,7 @@ public class WritingDiary extends AppCompatActivity implements View.OnClickListe
                 else if (view == saveDiary) {
                     userInput = writeDiary.getText().toString();
                     input.put("일기",userInput);
+
                     docRef.set(input);
                 }
             }
