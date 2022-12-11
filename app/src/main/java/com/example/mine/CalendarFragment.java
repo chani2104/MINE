@@ -68,8 +68,10 @@ public class CalendarFragment extends Fragment {
             try {
                 LocalDate selectedDate = adapter.dayList.get(position).localDate;
 
-                Intent intent = new Intent(requireContext(), UserDiary.class);
+                //Intent intent = new Intent(requireContext(), UserDiary.class);
+                Intent intent = new Intent(requireContext(), MultiImageActivity.class);
                 intent.putExtra("localDate", selectedDate);
+                System.out.println(selectedDate);
                 startActivity(intent);
             } catch (Exception ignore) {
             }

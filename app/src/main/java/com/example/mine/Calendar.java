@@ -58,6 +58,7 @@ public class Calendar extends AppCompatActivity {
     static boolean lock = true;
     static boolean login = false;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +74,7 @@ public class Calendar extends AppCompatActivity {
         onInit();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void onInit() {
         monthYearText = findViewById(R.id.monthYearText);
         ImageButton album = findViewById(R.id.album);
@@ -147,6 +149,7 @@ public class Calendar extends AppCompatActivity {
                 });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void setMonthView(LocalDate yearMonth) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM월");
         monthYearText.setText(yearMonth.format(formatter));
@@ -189,6 +192,7 @@ public class Calendar extends AppCompatActivity {
             this.yearMonthList = yearMonthList;
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.O)
         @NonNull
         @Override
         public Fragment createFragment(int position) {
