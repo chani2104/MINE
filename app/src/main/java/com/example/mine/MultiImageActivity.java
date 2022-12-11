@@ -145,7 +145,9 @@ public class MultiImageActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
+            
                 adapter = new MultiImageAdapter(uriList, getApplicationContext(),date,fragmentNum);
+
                 recyclerView.setAdapter(adapter);   // 리사이클러뷰에 어댑터 세팅
                 recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
             }
@@ -171,6 +173,7 @@ public class MultiImageActivity extends AppCompatActivity {
                 pictureNum++;
 
                 adapter = new MultiImageAdapter(uriList, getApplicationContext(),date,fragmentNum);
+
                 recyclerView.setAdapter(adapter);
                 recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true));
             } else {      // 이미지를 여러장 선택한 경우
@@ -224,6 +227,7 @@ public class MultiImageActivity extends AppCompatActivity {
 
 
         //storage에 입력
+
         reference = storage.getReference().child(loginID).child(String.valueOf(date)).child(str);
         uploadTask = reference.putFile(uri);
         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {

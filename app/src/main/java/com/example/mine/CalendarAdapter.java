@@ -1,7 +1,10 @@
 package com.example.mine;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +16,14 @@ import androidx.annotation.RequiresApi;
 import androidx.core.util.Consumer;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.mine.model.CalendarData;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -22,7 +31,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
     ArrayList<CalendarData> dayList;
     private Consumer<Integer> onClickListener;
-
+    private final FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference reference;
+    SharedPreferences sharedPref = LogInActivity.context_login.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
     public CalendarAdapter(ArrayList<CalendarData> dayList) {
         this.dayList = dayList;
     }
@@ -41,8 +52,8 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     //뷰홀더 안에서 어떤 작업을 할 것이냐
     public void onBindViewHolder(@NonNull CalendarViewHolder holder, int position) {
         CalendarData item = dayList.get(position);
-
         holder.itemView.setOnClickListener(null);
+
 
         //날짜 세팅
         if (item == null) {
@@ -64,11 +75,20 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                     holder.dayText.setText("");}
             }
             // 선택한 이미지 삽입
-            if (item.imageUri != null) {
+       /*  if (item.imageUri != null) {
                 holder.dayImageView.setImageURI(item.imageUri);
-            }
+            }*/
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            String loginID = sharedPref.getString("inputID", "");
+            String str="0."+day;
+            reference = storage.getReference().child(loginID).child(String.valueOf(day)).child(str);
+            Glide.with(holder.itemView.getContext()).load(reference).into(holder.dayImageView);
+
         }
+
+
     }
+
 
     //뷰홀더를 몇 개나 만들어서 RecyclerView에 넣을 것이냐
     @Override
@@ -94,8 +114,10 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         ImageView dayImageView;
         View cube_parentView;
 
+        //gs://mine-9e585.appspot.com
         public CalendarViewHolder(@NonNull View itemView) {
             super(itemView);
+
             cube_parentView = itemView.findViewById(R.id.cube_parentView);
             dayImageView = itemView.findViewById(R.id.dayImage);
             dayText = itemView.findViewById(R.id.dayText);

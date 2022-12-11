@@ -24,9 +24,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import com.google.firebase.storage.FirebaseStorage;
+
 import com.google.firebase.storage.StorageReference;
-
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -40,6 +39,7 @@ public class WritingDiary extends AppCompatActivity implements View.OnClickListe
     EditText writeDiary;
 
     String userInput;
+
     LocalDate date;
 
     private int position;
@@ -82,6 +82,7 @@ public class WritingDiary extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+
         writeDiary.requestFocus();
 
         writingBack.setOnClickListener(new View.OnClickListener() {
@@ -99,6 +100,7 @@ public class WritingDiary extends AppCompatActivity implements View.OnClickListe
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
+
      public void onClick(View view) {
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -113,6 +115,7 @@ public class WritingDiary extends AppCompatActivity implements View.OnClickListe
                 else if (view == saveDiary) {
                     userInput = writeDiary.getText().toString();
                     input.put("일기",userInput);
+
                     docRef.set(input);
                 }
             }

@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    android:background="#FFB0C4D0">
+    android:background="@drawable/paper_background">
 
     <TextView
         android:layout_width="match_parent"
@@ -22,9 +22,10 @@
         android:layout_marginRight="15dp"
         android:layout_marginLeft="15dp"
         android:textColor="#000000"
+
         android:hint="ID"
         android:paddingLeft="5dp"
-        android:textColorHint="#FFB0C4D0"
+
         android:singleLine="true"
         android:background="@drawable/box_background"/>
 
@@ -39,7 +40,7 @@
         android:hint="PASSWORD"
         android:inputType="textPassword"
         android:paddingLeft="5dp"
-        android:textColorHint="#FFB0C4D0"
+
         android:singleLine="true"
         android:background="@drawable/box_background"/>
 
@@ -50,11 +51,11 @@
         android:layout_width="180dp"
         android:layout_height="50dp"
         android:layout_marginTop="50dp"
-        android:background="#4DA6"
-        android:backgroundTint="#03A9F4"
+        android:background="#DDDDDD"
+        android:backgroundTint="#DDDDDD"
         android:hint="로그인"
         android:textAlignment="center"
-        android:textColorHint="@color/white"
+
         android:textStyle="bold" />
 
     <Button
@@ -62,11 +63,11 @@
         android:layout_width="180dp"
         android:layout_height="50dp"
         android:layout_marginTop="10dp"
-        android:background="#4DA6"
-        android:backgroundTint="#03A9F4"
+        android:background="#DDDDDD"
+        android:backgroundTint="#DDDDDD"
         android:hint="회원가입"
         android:textAlignment="center"
-        android:textColorHint="@color/white"
+
         android:textStyle="bold" />
 
 </LinearLayout>

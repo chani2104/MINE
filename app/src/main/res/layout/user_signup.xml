@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:background="#ffb0c4d0">
+    android:background="@drawable/paper_background">
 
     <TextView
         android:layout_width="match_parent"

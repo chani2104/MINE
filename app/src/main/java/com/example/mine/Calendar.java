@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -26,11 +27,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.bumptech.glide.Glide;
 import com.example.mine.model.CalendarData;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.ktx.Firebase;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.io.IOException;
@@ -72,7 +78,11 @@ public class Calendar extends AppCompatActivity {
         }
 
         onInit();
+
+
     }
+
+
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void onInit() {
@@ -183,6 +193,8 @@ public class Calendar extends AppCompatActivity {
         }
     }
 
+
+
     private static class CalendarViewPagerAdapter extends FragmentStateAdapter {
         private final List<LocalDate> yearMonthList;
 
@@ -204,4 +216,5 @@ public class Calendar extends AppCompatActivity {
             return yearMonthList.size();
         }
     }
+
 }
