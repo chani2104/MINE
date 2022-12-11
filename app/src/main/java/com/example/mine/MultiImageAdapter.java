@@ -28,6 +28,7 @@ public class MultiImageAdapter extends RecyclerView.Adapter<MultiImageAdapter.Vi
     MultiImageAdapter(ArrayList<Uri> list, Context context) {
         mData = list;
         mContext = context;
+
     }
 
     // 아이템 뷰를 저장하는 뷰홀더 클래스.
