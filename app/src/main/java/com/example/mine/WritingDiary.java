@@ -21,10 +21,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import com.google.firebase.storage.StorageReference;
-
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -89,6 +86,7 @@ public class WritingDiary extends AppCompatActivity implements View.OnClickListe
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
+
      public void onClick(View view) {
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
