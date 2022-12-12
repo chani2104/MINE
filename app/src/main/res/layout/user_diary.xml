@@ -38,6 +38,7 @@
             android:scrollHorizontally="false"
             android:hint="---"
             android:layout_gravity="center"
+            android:gravity="center"
             android:layout_margin="30dp"
             android:background="#ff000000"
             android:textColor="#ffffffff"

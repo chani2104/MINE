@@ -44,9 +44,6 @@ public class WritingDiary extends AppCompatActivity implements View.OnClickListe
 
     private int position;
 
-    //시간
-    Instant time;
-
     DocumentReference docRef;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -86,6 +83,9 @@ public class WritingDiary extends AppCompatActivity implements View.OnClickListe
         writeDiary.requestFocus();
 
         writingBack.setOnClickListener(new View.OnClickListener() {
+
+
+
             @Override
             public void onClick(View view) {
                 onBackPressed();
@@ -120,5 +120,10 @@ public class WritingDiary extends AppCompatActivity implements View.OnClickListe
                 }
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }

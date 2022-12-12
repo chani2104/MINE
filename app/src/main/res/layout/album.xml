@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:orientation="vertical" >
+
+    <!-- 지정한 경로 내의 사진들을 보여줄 Gallery 선언 -->
+    <Gallery
+        android:id="@+id/customgallery"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"/>
+
+    <!-- Gallery 내 선택한 사진을 크게 보여줄 ImageView 선언 -->
+    <ImageView
+        android:id="@+id/resultview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@id/customgallery" />
+</LinearLayout>

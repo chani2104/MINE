@@ -112,7 +112,6 @@ public class AppPassWordActivity extends AppCompatActivity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         SharedPreferences sharedPref = LogInActivity.context_login.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
         String loginID = sharedPref.getString("inputID", "");
-        System.out.println(loginID);
         DocumentReference docRef = db.collection("user_info").document(loginID);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
 
@@ -121,9 +120,7 @@ public class AppPassWordActivity extends AppCompatActivity {
                 DocumentSnapshot document = task.getResult();
                 Map<String, Object> lockNum = new HashMap<>();
                 String lock = document.getString("잠금번호");
-
                 if(num==4) {
-                    System.out.println("//////////////////////");
                     if (Objects.equals(lock, "") || lock == null) {
                         Calendar.isPassword = false;
                     }

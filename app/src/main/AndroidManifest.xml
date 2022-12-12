@@ -47,7 +47,7 @@
         <activity android:name=".Calendar"/>
         <activity android:name=".AppLock"/>
         <activity android:name=".AppPassWordActivity"/>
-        <activity android:name=".UserDiary"/>
+        <activity android:name=".Album"/>
         <activity android:name=".WritingDiary" />
         <activity android:name=".Setting"/>
         <activity android:name=".MultiImageActivity"/>

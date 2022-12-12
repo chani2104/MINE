@@ -1,53 +1,33 @@
 package com.example.mine;
 
-import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.bumptech.glide.Glide;
-import com.example.mine.model.CalendarData;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.ktx.Firebase;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -62,24 +42,21 @@ public class Calendar extends AppCompatActivity {
     private AppPassWordActivity appPassWordActivity;
     static boolean isPassword = false;
     static boolean lock = true;
-    static boolean login = false;
+    static boolean login = true;
+    private long pressedTime = 0;
+    SharedPreferences sharedPref = LogInActivity.context_login.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
-
         appPassWordActivity = new AppPassWordActivity();
-
         if (login) {
             // 잠금설정
             isPassLock();
         }
-
         onInit();
-
-
     }
 
 
@@ -87,7 +64,6 @@ public class Calendar extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void onInit() {
         monthYearText = findViewById(R.id.monthYearText);
-        ImageButton album = findViewById(R.id.album);
         ImageButton set = findViewById(R.id.setting);
         viewPager = findViewById(R.id.view_pager);
 
@@ -118,9 +94,10 @@ public class Calendar extends AppCompatActivity {
         // 아래 코드 주석처리시, Firestore 에서 데이터를 읽기 전까지는 화면에 달력이 표시되지 않습니다.
         viewPager.setAdapter(new CalendarViewPagerAdapter(this, Collections.singletonList(LocalDate.now())));
 
+        String id = sharedPref.getString("inputID", "");
+
         db.collection("user_info")
-                .orderBy("가입날짜")
-                .limit(1)
+                .document(id)
                 .get()
                 .addOnCompleteListener(this, task -> {
                     LocalDate now = LocalDate.now();
@@ -130,23 +107,19 @@ public class Calendar extends AppCompatActivity {
                         task.getException().printStackTrace();
                     }
 
-                    QuerySnapshot snapshot = task.getResult();
-                    if (snapshot != null && !snapshot.isEmpty()) {
-                        try {
-                            String source = snapshot.getDocuments().get(0).getString("가입날짜");
-                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM", Locale.US);
-                            Date date = dateFormat.parse(source);
-                            oldestDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    try {
+                        String source = task.getResult().getString("가입날짜");
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM", Locale.KOREA);
+                        Date date = dateFormat.parse(source);
+                        oldestDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
                     }
 
                     ArrayList<LocalDate> yearMonthList = new ArrayList<>();
                     LocalDate start = LocalDate.of(oldestDate.getYear(), oldestDate.getMonth(), 1);
                     LocalDate end = LocalDate.of(now.getYear(), now.getMonth(), 1);
-
                     while (!start.isAfter(end)) {
                         yearMonthList.add(start);
                         // Log.d("Calendar", start.toString());
@@ -167,6 +140,7 @@ public class Calendar extends AppCompatActivity {
 
     // 잠금기능
     protected boolean isPassLock() {
+        System.out.println("///////////////////////////////////");
         appPassWordActivity.database(4, null);
         return isPassword;
     }
@@ -174,6 +148,9 @@ public class Calendar extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        System.out.println("login : "+login);
+        System.out.println("lock : "+lock);
+        System.out.println("isPassword : "+isPassword);
         if (login) {
             if (lock && isPassLock()) {
                 Intent intent = new Intent(this, AppPassWordActivity.class);
@@ -214,6 +191,25 @@ public class Calendar extends AppCompatActivity {
         @Override
         public int getItemCount() {
             return yearMonthList.size();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if ( pressedTime == 0 ) {
+            Toast.makeText(Calendar.this, " 한 번 더 누르면 종료됩니다." , Toast.LENGTH_LONG).show();
+            pressedTime = System.currentTimeMillis();
+        }
+        else {
+            int seconds = (int) (System.currentTimeMillis() - pressedTime);
+
+            if ( seconds > 2000 ) {
+                Toast.makeText(Calendar.this, " 한 번 더 누르면 종료됩니다." , Toast.LENGTH_LONG).show();
+                pressedTime = 0 ;
+            }
+            else {
+                finish(); // app 종료 시키기
+            }
         }
     }
 

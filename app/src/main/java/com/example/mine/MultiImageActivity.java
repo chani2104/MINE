@@ -13,32 +13,16 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.ktx.Firebase;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,28 +30,16 @@ import java.util.Map;
 
 public class MultiImageActivity extends AppCompatActivity {
     private static final String TAG = "MultiImageActivity";
-    ArrayList<Uri> uriList = new ArrayList<>();     // 이미지의 uri를 담을 ArrayList 객체
+    ArrayList<Uri> uriList = new ArrayList<>();     // 이미지의 uri 를 담을 ArrayList 객체
 
     RecyclerView recyclerView;  // 이미지를 보여줄 리사이클러뷰
     MultiImageAdapter adapter;  // 리사이클러뷰에 적용시킬 어댑터
-    MultiImageAdapterText textAdapter;
 
     LocalDate date;
 
-
-    //사진을 불러오는 장소
-    private int imgFrom = -1;
-
-    protected String imageFileName;
-
-    //Fragment
-    private FragmentManager manager;
-    private ImageFragment imageFragment;
-    private TextFragment textFragment;
-
     private int pictureNum=0;
-
     private int fragmentNum = 1;
+
     private final FirebaseStorage storage = FirebaseStorage.getInstance();
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -79,7 +51,7 @@ public class MultiImageActivity extends AppCompatActivity {
         date = (LocalDate) getIntent().getSerializableExtra("localDate");
 
 
-        //Back버튼
+        //Back 버튼
         Button btn_back = findViewById(R.id.diary_back);
         btn_back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,12 +60,7 @@ public class MultiImageActivity extends AppCompatActivity {
             }
         });
 
-        //Fragment
-        manager = getSupportFragmentManager();
-        imageFragment = new ImageFragment();
-        textFragment = new TextFragment();
-
-        //Text읽기 버튼
+        //Text 읽기 버튼
         Button btn_readText = findViewById(R.id.readText);
         btn_readText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,7 +71,7 @@ public class MultiImageActivity extends AppCompatActivity {
                     recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
                     fragmentNum = 0;
                 }
-                else{
+                else if(fragmentNum==0){
                     adapter = new MultiImageAdapter(uriList, getApplicationContext(),date, fragmentNum);
                     recyclerView.setAdapter(adapter);   // 리사이클러뷰에 어댑터 세팅
                     recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
@@ -113,21 +80,10 @@ public class MultiImageActivity extends AppCompatActivity {
             }
         });
 
-
-        //글쓰기 버튼
-        Button btn_getText = findViewById(R.id.getText);
-        btn_getText.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.O)
-            @Override
-            public void onClick(View view) {
-                writing();
-            }
-        });
-
-
         // 앨범으로 이동하는 버튼
         Button btn_getImage = findViewById(R.id.getImage);
         btn_getImage.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("IntentReset")
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_PICK);
@@ -142,15 +98,13 @@ public class MultiImageActivity extends AppCompatActivity {
         downloadImg();
 
         Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-            
-                adapter = new MultiImageAdapter(uriList, getApplicationContext(),date,fragmentNum);
+        handler.postDelayed(() -> {
 
-                recyclerView.setAdapter(adapter);   // 리사이클러뷰에 어댑터 세팅
-                recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
-            }
+            adapter = new MultiImageAdapter(uriList, getApplicationContext(),date,fragmentNum);
+            fragmentNum=0;
+
+            recyclerView.setAdapter(adapter);   // 리사이클러뷰에 어댑터 세팅
+            recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false));
         }, 1000); //딜레이 타임 조절
 
     }
@@ -173,6 +127,7 @@ public class MultiImageActivity extends AppCompatActivity {
                 pictureNum++;
 
                 adapter = new MultiImageAdapter(uriList, getApplicationContext(),date,fragmentNum);
+                fragmentNum=0;
 
                 recyclerView.setAdapter(adapter);
                 recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true));
@@ -186,9 +141,9 @@ public class MultiImageActivity extends AppCompatActivity {
                     Log.e(TAG, "multiple choice");
 
                     for (int i = 0; i < clipData.getItemCount(); i++) {
-                        Uri imageUri = clipData.getItemAt(i).getUri();  // 선택한 이미지들의 uri를 가져온다.
+                        Uri imageUri = clipData.getItemAt(i).getUri();  // 선택한 이미지들의 uri 를 가져온다.
                         try {
-                            uriList.add(imageUri);  //uri를 list에 담는다.
+                            uriList.add(imageUri);  //uri 를 list 에 담는다.
                             uploadImg(imageUri);
                             pictureNum++;
                         } catch (Exception e) {
@@ -197,6 +152,7 @@ public class MultiImageActivity extends AppCompatActivity {
                     }
 
                     adapter = new MultiImageAdapter(uriList, getApplicationContext(),date,fragmentNum);
+                    fragmentNum=0;
                     recyclerView.setAdapter(adapter);   // 리사이클러뷰에 어댑터 세팅
                     recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));     // 리사이클러뷰 수평 스크롤 적용
                 }
@@ -205,16 +161,9 @@ public class MultiImageActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    protected void writing() {
-        Intent intent = new Intent(getApplicationContext(), WritingDiary.class);
-        intent.putExtra("localDate", date);
-        startActivity(intent);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
     protected void uploadImg(Uri uri) {
 
-        UploadTask uploadTask = null;
+        UploadTask uploadTask;
         StorageReference reference;
         SharedPreferences sharedPref = LogInActivity.context_login.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
         String loginID = sharedPref.getString("inputID", "");
@@ -226,18 +175,13 @@ public class MultiImageActivity extends AppCompatActivity {
         String str= pictureNum+ "." + date;
 
 
-        //storage에 입력
+        //storage 에 입력
 
         reference = storage.getReference().child(loginID).child(String.valueOf(date)).child(str);
         uploadTask = reference.putFile(uri);
-        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Log.e("tag", "uploding!");
-            }
-        });
+        uploadTask.addOnSuccessListener(taskSnapshot -> Log.e("tag", "upLoading!"));
 
-        // firestore에 입력
+        // fireStore 에 입력
 
         db.collection("user_photo").document(loginID).collection("Photo").document(str).set(diaryDefault);
     }
@@ -246,32 +190,28 @@ public class MultiImageActivity extends AppCompatActivity {
         SharedPreferences sharedPref = LogInActivity.context_login.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
         String loginID = sharedPref.getString("inputID", "");
         StorageReference listRef = storage.getReference();
-        System.out.println(loginID);
 
         listRef.child(loginID).child(String.valueOf(date)).listAll()
-                .addOnSuccessListener(new OnSuccessListener<ListResult>() {
-                    @Override
-                    public void onSuccess(ListResult listResult) {
-                        for (StorageReference item : listResult.getItems()) {
-                            pictureNum++;
-                            item.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Uri> task) {
-                                    if (task.isSuccessful()) {
-                                        uriList.add(task.getResult());
-                                        Log.d("tag", "success");
-                                    }
-                                }
-                            });
-                        }
+                .addOnSuccessListener(listResult -> {
+                    for (StorageReference item : listResult.getItems()) {
+                        pictureNum++;
+                        item.getDownloadUrl().addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                uriList.add(task.getResult());
+                                Log.d("tag", "success");
+                            }
+                        });
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        uriList.clear();
-                        Log.d("tag", "failure");
-                    }
+                .addOnFailureListener(e -> {
+                    uriList.clear();
+                    Log.d("tag", "failure");
                 });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Calendar.lock=false;
     }
 }

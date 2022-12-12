@@ -64,7 +64,6 @@ public class MultiImageAdapter extends RecyclerView.Adapter<MultiImageAdapter.Vi
 
         ViewHolder(View itemView, ItemClickListener itemClickListener) {
             super(itemView);
-
             pictureNum = 0;
 
             // 뷰 객체에 대한 참조.
@@ -141,17 +140,11 @@ public class MultiImageAdapter extends RecyclerView.Adapter<MultiImageAdapter.Vi
                         .into(holder.image);
             }
         });
-
     }
 
     // getItemCount() - 전체 데이터 갯수 리턴.
     @Override
     public int getItemCount() {
         return mData.size();
-    }
-
-
-    public void showingText(int num) {
-        this.num = num;
     }
 }
