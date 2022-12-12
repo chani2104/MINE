@@ -1,7 +1,9 @@
 package com.example.mine;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -58,7 +60,7 @@ public class Calendar extends AppCompatActivity {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private ViewPager2 viewPager;
     private TextView monthYearText;
-
+    SharedPreferences sharedPref = LogInActivity.context_login.getSharedPreferences("sharedPreferences", Context.MODE_PRIVATE);
     private AppPassWordActivity appPassWordActivity;
     static boolean isPassword = false;
     static boolean lock = true;
@@ -118,9 +120,10 @@ public class Calendar extends AppCompatActivity {
         // 아래 코드 주석처리시, Firestore 에서 데이터를 읽기 전까지는 화면에 달력이 표시되지 않습니다.
         viewPager.setAdapter(new CalendarViewPagerAdapter(this, Collections.singletonList(LocalDate.now())));
 
+        String id = sharedPref.getString("inputID", "");
+
         db.collection("user_info")
-                .orderBy("가입날짜")
-                .limit(1)
+                .document(id)
                 .get()
                 .addOnCompleteListener(this, task -> {
                     LocalDate now = LocalDate.now();
@@ -130,23 +133,19 @@ public class Calendar extends AppCompatActivity {
                         task.getException().printStackTrace();
                     }
 
-                    QuerySnapshot snapshot = task.getResult();
-                    if (snapshot != null && !snapshot.isEmpty()) {
-                        try {
-                            String source = snapshot.getDocuments().get(0).getString("가입날짜");
-                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM", Locale.US);
-                            Date date = dateFormat.parse(source);
-                            oldestDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    try {
+                        String source = task.getResult().getString("가입날짜");
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM", Locale.KOREA);
+                        Date date = dateFormat.parse(source);
+                        oldestDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
                     }
 
                     ArrayList<LocalDate> yearMonthList = new ArrayList<>();
                     LocalDate start = LocalDate.of(oldestDate.getYear(), oldestDate.getMonth(), 1);
                     LocalDate end = LocalDate.of(now.getYear(), now.getMonth(), 1);
-
                     while (!start.isAfter(end)) {
                         yearMonthList.add(start);
                         // Log.d("Calendar", start.toString());
